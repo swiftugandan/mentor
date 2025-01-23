@@ -64,7 +64,7 @@ The database will be available at `postgresql://postgres:postgres@localhost:5433
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone git@github.com:swiftugandan/mentor.git
 cd mentor
 ```
 
