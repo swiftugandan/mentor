@@ -373,7 +373,7 @@ export default function SessionsPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               {scheduledSessions.map((session) => (
                 <SessionCard key={session.id} session={session} />
               ))}

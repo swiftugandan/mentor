@@ -204,7 +204,7 @@ function MentorsContent() {
           <p className="text-sm text-muted-foreground">Loading mentors...</p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {mentors?.map((mentor) => (
             <Card key={mentor.id} className="flex flex-col">
               <CardHeader>

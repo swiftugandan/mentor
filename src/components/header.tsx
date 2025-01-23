@@ -70,40 +70,44 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between">
-        <div className="flex flex-1 items-center">
-          <MobileNav items={items} />
-          <div className="mr-4 hidden lg:flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <GraduationCap className="h-6 w-6" />
-              <span className="font-bold">Mentor</span>
-            </Link>
-            <nav className="flex items-center space-x-6 text-sm font-medium">
-              {items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center space-x-2 transition-colors hover:text-foreground/80',
-                    pathname === item.href
-                      ? 'text-foreground'
-                      : 'text-foreground/60'
-                  )}
-                >
-                  {item.icon && <item.icon className="h-4 w-4" />}
-                  <span>{item.title}</span>
-                  {item.label && (
-                    <span className="ml-2 rounded-md bg-[#E11D48] px-1.5 py-0.5 text-xs text-white">
-                      {item.label}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </nav>
+      <div className="flex h-14 items-center px-2 lg:px-4">
+        <div className="mx-auto flex w-full items-center justify-between gap-4">
+          <div className="flex items-center">
+            <div className="lg:hidden">
+              <MobileNav items={items} />
+            </div>
+            <div className="hidden items-center lg:flex">
+              <Link href="/" className="flex items-center space-x-2">
+                <GraduationCap className="h-6 w-6" />
+                <span className="font-bold">Mentor</span>
+              </Link>
+              <nav className="ml-6 flex items-center space-x-6 text-sm font-medium">
+                {items.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center space-x-2 transition-colors hover:text-foreground/80',
+                      pathname === item.href
+                        ? 'text-foreground'
+                        : 'text-foreground/60'
+                    )}
+                  >
+                    {item.icon && <item.icon className="h-4 w-4" />}
+                    <span>{item.title}</span>
+                    {item.label && (
+                      <span className="ml-2 rounded-md bg-[#E11D48] px-1.5 py-0.5 text-xs text-white">
+                        {item.label}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </nav>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center">
-          <UserNav />
+          <div className="flex items-center">
+            <UserNav />
+          </div>
         </div>
       </div>
     </header>
