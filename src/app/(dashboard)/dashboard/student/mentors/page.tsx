@@ -166,18 +166,18 @@ function MentorsContent() {
   }
 
   return (
-    <Shell>
+    <Shell className="gap-8">
       <PageHeader
         heading="Find Mentors"
         text="Connect with alumni mentors who can guide you on your journey"
       />
 
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by profession or company..."
-            className="pl-8"
+            className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -186,7 +186,7 @@ function MentorsContent() {
           value={expertise}
           onValueChange={(value: ExpertiseArea) => setExpertise(value)}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by expertise" />
           </SelectTrigger>
           <SelectContent>
@@ -200,31 +200,38 @@ function MentorsContent() {
       </div>
 
       {isLoading ? (
-        <div className="flex h-[450px] items-center justify-center">
+        <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
           <p className="text-sm text-muted-foreground">Loading mentors...</p>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {mentors?.map((mentor) => (
-            <Card key={mentor.id}>
+            <Card key={mentor.id} className="flex flex-col">
               <CardHeader>
-                <CardTitle>{mentor.name}</CardTitle>
-                <CardDescription>
+                <CardTitle className="line-clamp-1">{mentor.name}</CardTitle>
+                <CardDescription className="line-clamp-2">
                   {mentor.alumniProfile.profession} at{' '}
                   {mentor.alumniProfile.company}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-2">
                   <div className="font-medium">Expertise</div>
-                  <div className="text-sm text-muted-foreground">
-                    {mentor.alumniProfile.expertise.join(', ')}
+                  <div className="flex flex-wrap gap-1.5">
+                    {mentor.alumniProfile.expertise.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 {mentor.alumniProfile.bio && (
-                  <div>
+                  <div className="space-y-2">
                     <div className="font-medium">Bio</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="line-clamp-3 text-sm text-muted-foreground">
                       {mentor.alumniProfile.bio}
                     </div>
                   </div>
@@ -242,15 +249,17 @@ function MentorsContent() {
             </Card>
           ))}
           {mentors?.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground">
-              No mentors found matching your criteria.
+            <div className="col-span-full flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
+              <p className="text-sm text-muted-foreground">
+                No mentors found matching your criteria.
+              </p>
             </div>
           )}
         </div>
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Request Mentorship</DialogTitle>
             <DialogDescription>
@@ -263,20 +272,22 @@ function MentorsContent() {
               placeholder="Write your message here..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[150px]"
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
               disabled={requestMutation.isPending}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmitRequest}
               disabled={requestMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {requestMutation.isPending ? 'Sending...' : 'Send Request'}
             </Button>

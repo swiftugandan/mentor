@@ -24,6 +24,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -147,18 +148,23 @@ export default function SessionsPage() {
     const MeetingTypeIcon = meetingTypeIcons[session.meetingType]
 
     return (
-      <Card className="overflow-hidden">
+      <Card className="flex flex-col overflow-hidden">
         <CardHeader className="border-b bg-muted/40 p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="space-y-1">
-              <CardTitle className="text-lg">{session.title}</CardTitle>
-              <CardDescription>with {session.student.name}</CardDescription>
+              <CardTitle className="line-clamp-1 text-lg">
+                {session.title}
+              </CardTitle>
+              <CardDescription className="line-clamp-1">
+                with {session.student.name}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Badge
                 variant={
                   session.location === 'ONLINE' ? 'default' : 'secondary'
                 }
+                className="whitespace-nowrap"
               >
                 <MeetingTypeIcon className="mr-1 h-3 w-3" />
                 {session.location === 'ONLINE'
@@ -169,131 +175,128 @@ export default function SessionsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="space-y-4">
+        <CardContent className="flex-1 space-y-4 p-4">
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Student</div>
+            <div className="text-sm text-muted-foreground">
+              Grade {session.student.studentProfile.gradeLevel} at{' '}
+              {session.student.studentProfile.schoolName}
+            </div>
+          </div>
+
+          {session.description && (
             <div className="space-y-2">
-              <div className="text-sm font-medium">Student</div>
-              <div className="text-sm text-muted-foreground">
-                Grade {session.student.studentProfile.gradeLevel} at{' '}
-                {session.student.studentProfile.schoolName}
+              <div className="text-sm font-medium">Description</div>
+              <div className="line-clamp-3 text-sm text-muted-foreground">
+                {session.description}
               </div>
             </div>
+          )}
 
-            {session.description && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium">Description</div>
-                <div className="text-sm text-muted-foreground">
-                  {session.description}
-                </div>
-              </div>
-            )}
-
-            {session.agenda && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1 text-sm font-medium">
-                  <FileText className="h-4 w-4" />
-                  Agenda
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {session.agenda}
-                </div>
-              </div>
-            )}
-
+          {session.agenda && (
             <div className="space-y-2">
               <div className="flex items-center gap-1 text-sm font-medium">
-                <CalendarDays className="h-4 w-4" />
-                Time
+                <FileText className="h-4 w-4" />
+                Agenda
               </div>
-              <div className="text-sm text-muted-foreground">
-                {format(new Date(session.startTime), 'PPP p')} -{' '}
-                {format(new Date(session.endTime), 'p')}
+              <div className="line-clamp-3 text-sm text-muted-foreground">
+                {session.agenda}
               </div>
             </div>
+          )}
 
-            {session.location === 'ONLINE' && session.meetingLink && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1 text-sm font-medium">
-                  <Link className="h-4 w-4" />
-                  Meeting Link
-                </div>
-                <a
-                  href={session.meetingLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline"
-                >
-                  Join Meeting
-                </a>
-              </div>
-            )}
-
-            {session.status === 'SCHEDULED' && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() =>
-                    updateMutation.mutate({
-                      id: session.id,
-                      status: 'CANCELLED',
-                    })
-                  }
-                  disabled={updateMutation.isPending}
-                >
-                  Cancel Session
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={() => handleCompleteSession(session.id)}
-                  disabled={updateMutation.isPending}
-                >
-                  Complete Session
-                </Button>
-              </div>
-            )}
-
-            {session.status === 'COMPLETED' && (
-              <>
-                {session.notes && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1 text-sm font-medium">
-                      <MessageSquare className="h-4 w-4" />
-                      Session Notes
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {session.notes}
-                    </div>
-                  </div>
-                )}
-                {session.feedback && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1 text-sm font-medium">
-                      <MessageSquare className="h-4 w-4" />
-                      Feedback for Student
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {session.feedback}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-sm font-medium">
+              <CalendarDays className="h-4 w-4" />
+              Time
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {format(new Date(session.startTime), 'PPP p')} -{' '}
+              {format(new Date(session.endTime), 'p')}
+            </div>
           </div>
+
+          {session.location === 'ONLINE' && session.meetingLink && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-1 text-sm font-medium">
+                <Link className="h-4 w-4" />
+                Meeting Link
+              </div>
+              <a
+                href={session.meetingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline"
+              >
+                Join Meeting
+              </a>
+            </div>
+          )}
         </CardContent>
+        {session.status === 'SCHEDULED' && (
+          <CardFooter className="flex-col gap-2 border-t bg-muted/40 p-4 sm:flex-row">
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() =>
+                updateMutation.mutate({
+                  id: session.id,
+                  status: 'CANCELLED',
+                })
+              }
+              disabled={updateMutation.isPending}
+            >
+              Cancel Session
+            </Button>
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => handleCompleteSession(session.id)}
+              disabled={updateMutation.isPending}
+            >
+              Complete Session
+            </Button>
+          </CardFooter>
+        )}
+
+        {session.status === 'COMPLETED' && (
+          <CardFooter className="flex-col space-y-4 border-t bg-muted/40 p-4">
+            {session.notes && (
+              <div className="w-full space-y-2">
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <MessageSquare className="h-4 w-4" />
+                  Session Notes
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {session.notes}
+                </div>
+              </div>
+            )}
+            {session.feedback && (
+              <div className="w-full space-y-2">
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <MessageSquare className="h-4 w-4" />
+                  Feedback for Student
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {session.feedback}
+                </div>
+              </div>
+            )}
+          </CardFooter>
+        )}
       </Card>
     )
   }
 
   return (
-    <Shell>
+    <Shell className="gap-8">
       <PageHeader
         heading="Mentorship Sessions"
         text="View and manage your mentorship sessions"
       />
 
       <Dialog open={isCompleteDialogOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Complete Session</DialogTitle>
             <DialogDescription>
@@ -310,7 +313,7 @@ export default function SessionsPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add your private notes about the session..."
-                className="min-h-[100px]"
+                className="min-h-[150px]"
               />
             </div>
             <div className="space-y-2">
@@ -322,21 +325,23 @@ export default function SessionsPage() {
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Add feedback for the student..."
-                className="min-h-[100px]"
+                className="min-h-[150px]"
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             <Button
               variant="outline"
               onClick={() => handleDialogOpenChange(false)}
               disabled={updateMutation.isPending}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmitCompletion}
               disabled={updateMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {updateMutation.isPending ? 'Completing...' : 'Complete Session'}
             </Button>
@@ -345,28 +350,30 @@ export default function SessionsPage() {
       </Dialog>
 
       <Tabs defaultValue="upcoming" className="space-y-6">
-        <TabsList className="bg-background">
-          <TabsTrigger value="upcoming">
+        <TabsList className="w-full justify-start overflow-x-auto bg-background sm:w-auto">
+          <TabsTrigger value="upcoming" className="min-w-[100px]">
             Upcoming ({scheduledSessions.length})
           </TabsTrigger>
-          <TabsTrigger value="past">Past ({pastSessions.length})</TabsTrigger>
+          <TabsTrigger value="past" className="min-w-[100px]">
+            Past ({pastSessions.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="space-y-4">
           {isLoading ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 Loading sessions...
               </p>
             </div>
           ) : scheduledSessions.length === 0 ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 No upcoming sessions
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {scheduledSessions.map((session) => (
                 <SessionCard key={session.id} session={session} />
               ))}
@@ -376,17 +383,17 @@ export default function SessionsPage() {
 
         <TabsContent value="past" className="space-y-4">
           {isLoading ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 Loading sessions...
               </p>
             </div>
           ) : pastSessions.length === 0 ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">No past sessions</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {pastSessions.map((session) => (
                 <SessionCard key={session.id} session={session} />
               ))}

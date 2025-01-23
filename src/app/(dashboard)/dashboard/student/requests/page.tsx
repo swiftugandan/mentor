@@ -40,14 +40,21 @@ export default function RequestsPage() {
     const StatusIcon = statusIcons[request.status]
 
     return (
-      <Card className="overflow-hidden">
-        <CardHeader className="border-b bg-muted/40">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{request.alumni.name}</CardTitle>
-            <StatusIcon className={statusColors[request.status]} />
+      <Card className="flex flex-col overflow-hidden">
+        <CardHeader className="border-b bg-muted/40 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="line-clamp-1 text-lg">
+              {request.alumni.name}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <StatusIcon className={statusColors[request.status]} />
+              <span className="text-sm font-medium capitalize text-muted-foreground">
+                {request.status.toLowerCase()}
+              </span>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-4">
+        <CardContent className="flex-1 space-y-4 p-4">
           <div className="space-y-2">
             <div className="text-sm font-medium">Profession</div>
             <div className="text-sm text-muted-foreground">
@@ -73,39 +80,39 @@ export default function RequestsPage() {
   }
 
   return (
-    <Shell>
+    <Shell className="gap-8">
       <PageHeader
         heading="My Requests"
         text="Track the status of your mentorship requests"
       />
       <Tabs defaultValue="pending" className="space-y-6">
-        <TabsList className="bg-background">
-          <TabsTrigger value="pending">
+        <TabsList className="w-full justify-start overflow-x-auto bg-background sm:w-auto">
+          <TabsTrigger value="pending" className="min-w-[100px]">
             Pending ({pendingRequests.length})
           </TabsTrigger>
-          <TabsTrigger value="accepted">
+          <TabsTrigger value="accepted" className="min-w-[100px]">
             Accepted ({acceptedRequests.length})
           </TabsTrigger>
-          <TabsTrigger value="rejected">
+          <TabsTrigger value="rejected" className="min-w-[100px]">
             Rejected ({rejectedRequests.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="pending" className="space-y-4">
           {isLoading ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 Loading requests...
               </p>
             </div>
           ) : pendingRequests.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
+            <div className="flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 No pending requests
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {pendingRequests.map((request) => (
                 <RequestCard key={request.id} request={request} />
               ))}
@@ -115,19 +122,19 @@ export default function RequestsPage() {
 
         <TabsContent value="accepted" className="space-y-4">
           {isLoading ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 Loading requests...
               </p>
             </div>
           ) : acceptedRequests.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
+            <div className="flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 No accepted requests
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {acceptedRequests.map((request) => (
                 <RequestCard key={request.id} request={request} />
               ))}
@@ -137,19 +144,19 @@ export default function RequestsPage() {
 
         <TabsContent value="rejected" className="space-y-4">
           {isLoading ? (
-            <div className="flex h-[450px] items-center justify-center">
+            <div className="flex min-h-[450px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 Loading requests...
               </p>
             </div>
           ) : rejectedRequests.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
+            <div className="flex min-h-[200px] items-center justify-center rounded-lg border bg-muted/40">
               <p className="text-sm text-muted-foreground">
                 No rejected requests
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {rejectedRequests.map((request) => (
                 <RequestCard key={request.id} request={request} />
               ))}

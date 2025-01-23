@@ -36,7 +36,7 @@ function LoginContent() {
   }
 
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+    <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[350px]">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
@@ -44,7 +44,7 @@ function LoginContent() {
         </p>
       </div>
       <AuthForm type="login" onSubmit={onSubmit} />
-      <p className="px-8 text-center text-sm text-muted-foreground">
+      <p className="text-center text-sm text-muted-foreground">
         <Link
           href="/register"
           className="hover:text-brand underline underline-offset-4"
@@ -58,18 +58,13 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Suspense
-        fallback={
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-            <div className="flex flex-col space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Loading...
-              </h1>
-            </div>
-          </div>
-        }
-      >
+    <div className="container relative flex min-h-screen flex-col items-center justify-center">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        <div className="flex flex-col space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">Loading...</h1>
+        </div>
+      </div>
+      <Suspense fallback={null}>
         <LoginContent />
       </Suspense>
     </div>

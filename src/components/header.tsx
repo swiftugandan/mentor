@@ -1,175 +1,109 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { UserRole } from '@prisma/client'
-import { GraduationCap, LogOut } from 'lucide-react'
+import {
+  Users,
+  Calendar,
+  Clock,
+  MessageSquare,
+  GraduationCap,
+} from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { MobileNav } from '@/components/mobile-nav'
+import { UserNav } from '@/components/user-nav'
 
-function Logo() {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="relative">
-        <GraduationCap className="h-8 w-8 text-primary" />
-      </div>
-      <span className="text-xl font-bold">
-        Alumni<span className="text-primary">Mentor</span>
-      </span>
-    </div>
-  )
+interface NavItem {
+  href: string
+  title: string
+  label?: string
+  icon?: React.ComponentType<{ className?: string }>
 }
 
 export function Header() {
   const { data: session } = useSession()
   const pathname = usePathname()
-  const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false)
 
   const isStudent = session?.user?.role === UserRole.STUDENT
   const isAlumni = session?.user?.role === UserRole.ALUMNI
 
-  let pageTitle = 'Dashboard'
-  if (pathname === '/dashboard/profile') pageTitle = 'Profile'
-  else if (pathname === '/dashboard/student/mentors') pageTitle = 'Find Mentors'
-  else if (pathname === '/dashboard/student/schedule') pageTitle = 'Schedule'
-  else if (pathname === '/dashboard/student/sessions') pageTitle = 'Sessions'
-  else if (pathname === '/dashboard/alumni/availability')
-    pageTitle = 'Availability'
-  else if (pathname === '/dashboard/alumni/requests') pageTitle = 'Requests'
-  else if (pathname === '/dashboard/alumni/sessions') pageTitle = 'Sessions'
-
-  const studentLinks = [
+  const studentItems: NavItem[] = [
     {
-      name: 'Find Mentors',
       href: '/dashboard/student/mentors',
-      active: pathname === '/dashboard/student/mentors',
+      title: 'Find Mentors',
+      icon: Users,
     },
     {
-      name: 'Schedule',
-      href: '/dashboard/student/schedule',
-      active: pathname === '/dashboard/student/schedule',
+      href: '/dashboard/student/requests',
+      title: 'My Requests',
+      icon: MessageSquare,
     },
     {
-      name: 'Sessions',
       href: '/dashboard/student/sessions',
-      active: pathname === '/dashboard/student/sessions',
+      title: 'Sessions',
+      icon: Calendar,
     },
   ]
 
-  const alumniLinks = [
+  const alumniItems: NavItem[] = [
     {
-      name: 'Availability',
-      href: '/dashboard/alumni/availability',
-      active: pathname === '/dashboard/alumni/availability',
-    },
-    {
-      name: 'Requests',
       href: '/dashboard/alumni/requests',
-      active: pathname === '/dashboard/alumni/requests',
+      title: 'Mentorship Requests',
+      icon: MessageSquare,
     },
     {
-      name: 'Sessions',
       href: '/dashboard/alumni/sessions',
-      active: pathname === '/dashboard/alumni/sessions',
+      title: 'Sessions',
+      icon: Calendar,
+    },
+    {
+      href: '/dashboard/alumni/availability',
+      title: 'Availability',
+      icon: Clock,
     },
   ]
+
+  const items = isStudent ? studentItems : isAlumni ? alumniItems : []
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/dashboard">
-            <Logo />
-          </Link>
-
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/dashboard/profile"
-              className={cn(
-                'transition-colors hover:text-foreground/80',
-                pathname === '/dashboard/profile'
-                  ? 'text-foreground'
-                  : 'text-foreground/60'
-              )}
-            >
-              Profile
+        <div className="flex flex-1 items-center">
+          <MobileNav items={items} />
+          <div className="mr-4 hidden lg:flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <GraduationCap className="h-6 w-6" />
+              <span className="font-bold">Mentor</span>
             </Link>
-            {isStudent &&
-              studentLinks.map((link) => (
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              {items.map((item) => (
                 <Link
-                  key={link.name}
-                  href={link.href}
+                  key={item.href}
+                  href={item.href}
                   className={cn(
-                    'transition-colors hover:text-foreground/80',
-                    link.active ? 'text-foreground' : 'text-foreground/60'
+                    'flex items-center space-x-2 transition-colors hover:text-foreground/80',
+                    pathname === item.href
+                      ? 'text-foreground'
+                      : 'text-foreground/60'
                   )}
                 >
-                  {link.name}
-                </Link>
-              ))}
-            {isAlumni &&
-              alumniLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={cn(
-                    'transition-colors hover:text-foreground/80',
-                    link.active ? 'text-foreground' : 'text-foreground/60'
+                  {item.icon && <item.icon className="h-4 w-4" />}
+                  <span>{item.title}</span>
+                  {item.label && (
+                    <span className="ml-2 rounded-md bg-[#E11D48] px-1.5 py-0.5 text-xs text-white">
+                      {item.label}
+                    </span>
                   )}
-                >
-                  {link.name}
                 </Link>
               ))}
-          </nav>
+            </nav>
+          </div>
         </div>
-
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-semibold">{pageTitle}</h1>
-          <Dialog
-            open={isSignOutDialogOpen}
-            onOpenChange={setIsSignOutDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Sign out</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Sign Out</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to sign out of your account?
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSignOutDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                >
-                  Sign Out
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+        <div className="flex items-center">
+          <UserNav />
         </div>
       </div>
     </header>
