@@ -157,6 +157,12 @@ You can run the entire application stack (Next.js app and PostgreSQL) using Dock
 docker-compose up --build
 ```
 
+This will:
+- Start PostgreSQL database
+- Wait for database to be ready
+- Run all pending migrations automatically
+- Build and start the Next.js application
+
 2. The application will be available at `http://localhost:3000`
 
 3. To stop the application:
@@ -172,7 +178,8 @@ docker-compose logs -f
 The Docker setup includes:
 - Next.js application running in production mode
 - PostgreSQL database with persistent storage
-- Automatic database connection handling
+- Automatic database migrations on startup
+- Automatic Prisma client generation
 - Health checks to ensure proper service startup
 
 ### Development Setup
