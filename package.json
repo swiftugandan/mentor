@@ -9,7 +9,9 @@
     "lint": "next lint",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
-    "docker:init": "npm run db:generate && npm run db:migrate && npm run build && npm run start"
+    "docker:init": "npm run db:generate && npm run db:migrate && npm run build && npm run start",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.4",
@@ -31,6 +33,7 @@
     "lucide-react": "^0.473.0",
     "next": "15.1.6",
     "next-auth": "^4.24.11",
+    "prisma": "^6.2.1",
     "react": "^19.0.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",
@@ -49,6 +52,8 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
     "postcss": "^8",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.10",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { UserRole } from "@prisma/client"
-import { z } from "zod"
+import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { UserRole } from '@prisma/client'
+import { z } from 'zod'
 
-import { db } from "@/lib/db"
-import { authOptions } from "@/lib/auth"
+import { db } from '@/lib/db'
+import { authOptions } from '@/lib/auth'
 
 const requestSchema = z.object({
   alumniId: z.string(),
-  message: z.string().min(1, "Message is required"),
+  message: z.string().min(1, 'Message is required'),
 })
 
 export async function POST(req: Request) {
@@ -16,10 +16,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session || session.user.role !== UserRole.STUDENT) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json()
@@ -27,7 +24,10 @@ export async function POST(req: Request) {
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { error: "Invalid fields", details: validatedFields.error.flatten().fieldErrors },
+        {
+          error: 'Invalid fields',
+          details: validatedFields.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
@@ -43,10 +43,7 @@ export async function POST(req: Request) {
     })
 
     if (!alumni) {
-      return NextResponse.json(
-        { error: "Mentor not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Mentor not found' }, { status: 404 })
     }
 
     // Check if request already exists
@@ -54,13 +51,13 @@ export async function POST(req: Request) {
       where: {
         studentId: session.user.id,
         alumniId,
-        status: "PENDING",
+        status: 'PENDING',
       },
     })
 
     if (existingRequest) {
       return NextResponse.json(
-        { error: "A pending request already exists with this mentor" },
+        { error: 'A pending request already exists with this mentor' },
         { status: 409 }
       )
     }
@@ -76,9 +73,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {
-    console.error("Error creating mentorship request:", error)
+    console.error('Error creating mentorship request:', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
@@ -89,14 +86,11 @@ export async function GET(req: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get("status")
+    const status = searchParams.get('status')
 
     const requests = await db.mentorshipRequest.findMany({
       where: {
@@ -122,16 +116,16 @@ export async function GET(req: Request) {
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
     })
 
     return NextResponse.json(requests)
   } catch (error) {
-    console.error("Error fetching mentorship requests:", error)
+    console.error('Error fetching mentorship requests:', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
-} 
+}

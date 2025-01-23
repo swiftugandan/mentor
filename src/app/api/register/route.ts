@@ -1,22 +1,29 @@
-import { NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
-import { UserRole } from "@prisma/client"
+import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
+import { UserRole } from '@prisma/client'
 
-import { db } from "@/lib/db"
-import { studentRegistrationSchema, alumniRegistrationSchema } from "@/lib/validations/auth"
-import type { StudentRegistrationForm, AlumniRegistrationForm } from "@/types"
+import { db } from '@/lib/db'
+import {
+  studentRegistrationSchema,
+  alumniRegistrationSchema,
+} from '@/lib/validations/auth'
+import type { StudentRegistrationForm, AlumniRegistrationForm } from '@/types'
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const validatedFields = body.role === UserRole.STUDENT
-      ? studentRegistrationSchema.safeParse(body)
-      : alumniRegistrationSchema.safeParse(body)
+    const validatedFields =
+      body.role === UserRole.STUDENT
+        ? studentRegistrationSchema.safeParse(body)
+        : alumniRegistrationSchema.safeParse(body)
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { error: "Invalid fields", details: validatedFields.error.flatten().fieldErrors },
+        {
+          error: 'Invalid fields',
+          details: validatedFields.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
@@ -29,7 +36,7 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already exists" },
+        { error: 'Email already exists' },
         { status: 409 }
       )
     }
@@ -73,14 +80,14 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(
-      { message: "User created successfully" },
+      { message: 'User created successfully' },
       { status: 201 }
     )
   } catch (error) {
-    console.error("Registration error:", error)
+    console.error('Registration error:', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
-} 
+}

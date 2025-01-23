@@ -1,17 +1,33 @@
-"use client"
+'use client'
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { toast } from "sonner"
-import { CheckCircle2, Clock, XCircle, Video, Mic, Users, Link, CalendarDays, FileText } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { format } from 'date-fns'
+import { toast } from 'sonner'
+import {
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Video,
+  Mic,
+  Users,
+  Link,
+  CalendarDays,
+  FileText,
+} from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { MentorshipSession, SessionStatus } from "@/types"
-import { PageHeader } from "@/components/page-header"
-import { Shell } from "@/components/shell"
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { MentorshipSession, SessionStatus } from '@/types'
+import { PageHeader } from '@/components/page-header'
+import { Shell } from '@/components/shell'
 
 const statusIcons = {
   SCHEDULED: Clock,
@@ -20,9 +36,9 @@ const statusIcons = {
 } as const
 
 const statusColors = {
-  SCHEDULED: "text-yellow-500",
-  COMPLETED: "text-green-500",
-  CANCELLED: "text-red-500",
+  SCHEDULED: 'text-yellow-500',
+  COMPLETED: 'text-green-500',
+  CANCELLED: 'text-red-500',
 } as const
 
 const meetingTypeIcons = {
@@ -35,35 +51,45 @@ export default function SessionsPage() {
   const queryClient = useQueryClient()
 
   const { data: sessions = [], isLoading } = useQuery<MentorshipSession[]>({
-    queryKey: ["sessions"],
+    queryKey: ['sessions'],
     queryFn: async () => {
-      const response = await fetch("/api/sessions")
-      if (!response.ok) throw new Error("Failed to fetch sessions")
+      const response = await fetch('/api/sessions')
+      if (!response.ok) throw new Error('Failed to fetch sessions')
       return response.json()
     },
   })
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: SessionStatus }) => {
-      const response = await fetch("/api/sessions", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string
+      status: SessionStatus
+    }) => {
+      const response = await fetch('/api/sessions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status }),
       })
-      if (!response.ok) throw new Error("Failed to update session")
+      if (!response.ok) throw new Error('Failed to update session')
       return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sessions"] })
-      toast.success("Session updated successfully")
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      toast.success('Session updated successfully')
     },
     onError: () => {
-      toast.error("Failed to update session")
+      toast.error('Failed to update session')
     },
   })
 
-  const scheduledSessions = sessions.filter((session) => session.status === "SCHEDULED")
-  const pastSessions = sessions.filter((session) => ["COMPLETED", "CANCELLED"].includes(session.status))
+  const scheduledSessions = sessions.filter(
+    (session) => session.status === 'SCHEDULED'
+  )
+  const pastSessions = sessions.filter((session) =>
+    ['COMPLETED', 'CANCELLED'].includes(session.status)
+  )
 
   const SessionCard = ({ session }: { session: MentorshipSession }) => {
     const StatusIcon = statusIcons[session.status]
@@ -75,14 +101,18 @@ export default function SessionsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-lg">{session.title}</CardTitle>
-              <CardDescription>
-                with {session.mentor.name}
-              </CardDescription>
+              <CardDescription>with {session.mentor.name}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant={session.location === "ONLINE" ? "default" : "secondary"}>
+              <Badge
+                variant={
+                  session.location === 'ONLINE' ? 'default' : 'secondary'
+                }
+              >
                 <MeetingTypeIcon className="mr-1 h-3 w-3" />
-                {session.location === "ONLINE" ? `Online (${session.meetingType})` : "In Person"}
+                {session.location === 'ONLINE'
+                  ? `Online (${session.meetingType})`
+                  : 'In Person'}
               </Badge>
               <StatusIcon className={statusColors[session.status]} />
             </div>
@@ -93,7 +123,8 @@ export default function SessionsPage() {
             <div className="space-y-2">
               <div className="text-sm font-medium">Mentor</div>
               <div className="text-sm text-muted-foreground">
-                {session.mentor.alumniProfile.profession} at {session.mentor.alumniProfile.company}
+                {session.mentor.alumniProfile.profession} at{' '}
+                {session.mentor.alumniProfile.company}
               </div>
             </div>
 
@@ -124,11 +155,12 @@ export default function SessionsPage() {
                 Time
               </div>
               <div className="text-sm text-muted-foreground">
-                {format(new Date(session.startTime), "PPP p")} - {format(new Date(session.endTime), "p")}
+                {format(new Date(session.startTime), 'PPP p')} -{' '}
+                {format(new Date(session.endTime), 'p')}
               </div>
             </div>
 
-            {session.location === "ONLINE" && session.meetingLink && (
+            {session.location === 'ONLINE' && session.meetingLink && (
               <div className="space-y-2">
                 <div className="flex items-center gap-1 text-sm font-medium">
                   <Link className="h-4 w-4" />
@@ -145,12 +177,17 @@ export default function SessionsPage() {
               </div>
             )}
 
-            {session.status === "SCHEDULED" && (
+            {session.status === 'SCHEDULED' && (
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => updateMutation.mutate({ id: session.id, status: "CANCELLED" })}
+                  onClick={() =>
+                    updateMutation.mutate({
+                      id: session.id,
+                      status: 'CANCELLED',
+                    })
+                  }
                   disabled={updateMutation.isPending}
                 >
                   Cancel Session
@@ -174,19 +211,21 @@ export default function SessionsPage() {
           <TabsTrigger value="upcoming">
             Upcoming ({scheduledSessions.length})
           </TabsTrigger>
-          <TabsTrigger value="past">
-            Past ({pastSessions.length})
-          </TabsTrigger>
+          <TabsTrigger value="past">Past ({pastSessions.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="space-y-4">
           {isLoading ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading sessions...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading sessions...
+              </p>
             </div>
           ) : scheduledSessions.length === 0 ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">No upcoming sessions</p>
+              <p className="text-sm text-muted-foreground">
+                No upcoming sessions
+              </p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -200,7 +239,9 @@ export default function SessionsPage() {
         <TabsContent value="past" className="space-y-4">
           {isLoading ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading sessions...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading sessions...
+              </p>
             </div>
           ) : pastSessions.length === 0 ? (
             <div className="flex h-[450px] items-center justify-center">
@@ -217,4 +258,4 @@ export default function SessionsPage() {
       </Tabs>
     </Shell>
   )
-} 
+}

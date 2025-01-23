@@ -1,6 +1,6 @@
-import { User as PrismaUser, UserRole } from "@prisma/client"
+import { User as PrismaUser, UserRole } from '@prisma/client'
 
-export type SafeUser = Omit<PrismaUser, "password"> & {
+export type SafeUser = Omit<PrismaUser, 'password'> & {
   password?: undefined
 }
 
@@ -29,7 +29,7 @@ export interface AlumniRegistrationForm extends RegisterForm {
   bio?: string
 }
 
-export type MentorshipRequestStatus = "PENDING" | "ACCEPTED" | "REJECTED"
+export type MentorshipRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED'
 
 export interface StudentProfile {
   id: string
@@ -65,10 +65,10 @@ export interface MentorshipRequest {
   alumni: User & { alumniProfile: AlumniProfile }
 }
 
-export type SessionStatus = "SCHEDULED" | "COMPLETED" | "CANCELLED"
-export type SessionLocation = "ONLINE" | "IN_PERSON"
-export type SessionMeetingType = "VIDEO" | "AUDIO" | "IN_PERSON"
-export type MeetingProvider = "ZOOM" | "GOOGLE_MEET"
+export type SessionStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+export type SessionLocation = 'ONLINE' | 'IN_PERSON'
+export type SessionMeetingType = 'VIDEO' | 'AUDIO' | 'IN_PERSON'
+export type MeetingProvider = 'ZOOM' | 'GOOGLE_MEET'
 
 export interface MentorshipSession {
   id: string
@@ -77,29 +77,29 @@ export interface MentorshipSession {
   startTime: string
   endTime: string
   status: SessionStatus
-  
+
   // Meeting details
   location: SessionLocation
   meetingType: SessionMeetingType
   meetingLink: string | null
   meetingProvider: MeetingProvider | null
   meetingId: string | null
-  
+
   // Session content
   agenda: string | null
   notes: string | null
   feedback: string | null
-  
+
   // Two-way feedback
   studentFeedback: string | null
   mentorRating: number | null
   studentRating: number | null
-  
+
   // Time management
   timezone: string
   duration: number
   remindersSent: string[]
-  
+
   // Timestamps
   createdAt: string
   updatedAt: string
@@ -112,4 +112,4 @@ export interface MentorshipSession {
   mentor: User & { alumniProfile: AlumniProfile }
   studentId: string
   mentorId: string
-} 
+}

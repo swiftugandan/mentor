@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useSession } from "next-auth/react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { UserRole } from "@prisma/client"
-import { toast } from "sonner"
-import { BadgeCheck, Building2, GraduationCap, Mail, User } from "lucide-react"
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { UserRole } from '@prisma/client'
+import { toast } from 'sonner'
+import { BadgeCheck, Building2, GraduationCap, Mail, User } from 'lucide-react'
 
 import {
   Card,
@@ -13,39 +13,50 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { PageHeader } from "@/components/page-header"
-import { Shell } from "@/components/shell"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { PageHeader } from '@/components/page-header'
+import { Shell } from '@/components/shell'
+import { User as UserType } from '@/types'
 
 const EXPERTISE_AREAS = [
-  "Career Guidance",
-  "College Applications",
-  "Interview Preparation",
-  "Resume Building",
-  "Industry Insights",
-  "Academic Advice",
-  "Leadership",
-  "Networking",
+  'Career Guidance',
+  'College Applications',
+  'Interview Preparation',
+  'Resume Building',
+  'Industry Insights',
+  'Academic Advice',
+  'Leadership',
+  'Networking',
 ]
 
 const STUDENT_INTERESTS = [
-  "Career Exploration",
-  "College Preparation",
-  "Academic Excellence",
-  "Leadership Development",
-  "Research",
-  "Internships",
-  "Technology",
-  "Arts",
-  "Science",
-  "Business",
+  'Career Exploration',
+  'College Preparation',
+  'Academic Excellence',
+  'Leadership Development',
+  'Research',
+  'Internships',
+  'Technology',
+  'Arts',
+  'Science',
+  'Business',
 ]
+
+interface ExtendedUser extends UserType {
+  bio?: string
+}
 
 export default function ProfilePage() {
   const { data: session } = useSession()
@@ -53,25 +64,25 @@ export default function ProfilePage() {
   const queryClient = useQueryClient()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [bio, setBio] = useState("")
+  const [name, setName] = useState('')
+  const [bio, setBio] = useState('')
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [selectedExpertise, setSelectedExpertise] = useState<string[]>([])
 
   // Student-specific fields
-  const [gradeLevel, setGradeLevel] = useState("")
-  const [schoolName, setSchoolName] = useState("")
+  const [gradeLevel, setGradeLevel] = useState('')
+  const [schoolName, setSchoolName] = useState('')
 
   // Alumni-specific fields
-  const [profession, setProfession] = useState("")
-  const [company, setCompany] = useState("")
-  const [graduationYear, setGraduationYear] = useState("")
+  const [profession, setProfession] = useState('')
+  const [company, setCompany] = useState('')
+  const [graduationYear, setGraduationYear] = useState('')
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
+  const { data: profile, isLoading } = useQuery<ExtendedUser>({
+    queryKey: ['profile'],
     queryFn: async () => {
-      const response = await fetch("/api/profile")
-      if (!response.ok) throw new Error("Failed to fetch profile")
+      const response = await fetch('/api/profile')
+      if (!response.ok) throw new Error('Failed to fetch profile')
       return response.json()
     },
   })
@@ -81,8 +92,8 @@ export default function ProfilePage() {
     if (!profile) return
 
     setName(profile.name)
-    setBio(profile.studentProfile?.bio || profile.alumniProfile?.bio || "")
-    
+    setBio(profile.studentProfile?.bio || profile.alumniProfile?.bio || '')
+
     if (isStudent && profile.studentProfile) {
       setGradeLevel(profile.studentProfile.gradeLevel.toString())
       setSchoolName(profile.studentProfile.schoolName)
@@ -104,21 +115,21 @@ export default function ProfilePage() {
   }
 
   const updateMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+    mutationFn: async (data: Record<string, unknown>) => {
+      const response = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || "Failed to update profile")
+        throw new Error(error.error || 'Failed to update profile')
       }
       return response.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] })
-      toast.success("Profile updated successfully")
+      queryClient.invalidateQueries({ queryKey: ['profile'] })
+      toast.success('Profile updated successfully')
       setIsDialogOpen(false)
     },
     onError: (error: Error) => {
@@ -162,9 +173,7 @@ export default function ProfilePage() {
 
   const toggleExpertise = (area: string) => {
     setSelectedExpertise((prev) =>
-      prev.includes(area)
-        ? prev.filter((a) => a !== area)
-        : [...prev, area]
+      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
     )
   }
 
@@ -188,7 +197,9 @@ export default function ProfilePage() {
         heading="Profile"
         text="Manage your profile information and preferences"
       >
-        <Button onClick={() => handleDialogOpenChange(true)}>Edit Profile</Button>
+        <Button onClick={() => handleDialogOpenChange(true)}>
+          Edit Profile
+        </Button>
       </PageHeader>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
@@ -254,7 +265,11 @@ export default function ProfilePage() {
                         <Button
                           key={interest}
                           type="button"
-                          variant={selectedInterests.includes(interest) ? "default" : "outline"}
+                          variant={
+                            selectedInterests.includes(interest)
+                              ? 'default'
+                              : 'outline'
+                          }
                           className="h-auto justify-start whitespace-normal p-3 text-left"
                           onClick={() => toggleInterest(interest)}
                         >
@@ -306,7 +321,11 @@ export default function ProfilePage() {
                         <Button
                           key={area}
                           type="button"
-                          variant={selectedExpertise.includes(area) ? "default" : "outline"}
+                          variant={
+                            selectedExpertise.includes(area)
+                              ? 'default'
+                              : 'outline'
+                          }
                           className="h-auto justify-start whitespace-normal p-3 text-left"
                           onClick={() => toggleExpertise(area)}
                         >
@@ -341,20 +360,26 @@ export default function ProfilePage() {
               <User className="h-9 w-9 text-primary" />
               <div className="space-y-1">
                 <div className="text-sm font-medium">Name</div>
-                <div className="text-sm text-muted-foreground">{profile?.name}</div>
+                <div className="text-sm text-muted-foreground">
+                  {profile?.name}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <Mail className="h-9 w-9 text-primary" />
               <div className="space-y-1">
                 <div className="text-sm font-medium">Email</div>
-                <div className="text-sm text-muted-foreground">{session?.user?.email}</div>
+                <div className="text-sm text-muted-foreground">
+                  {session?.user?.email}
+                </div>
               </div>
             </div>
             {profile?.bio && (
               <div className="space-y-2">
                 <div className="text-sm font-medium">Bio</div>
-                <div className="text-sm text-muted-foreground">{profile.bio}</div>
+                <div className="text-sm text-muted-foreground">
+                  {profile.bio}
+                </div>
               </div>
             )}
           </CardContent>
@@ -374,25 +399,27 @@ export default function ProfilePage() {
                 <div className="space-y-1">
                   <div className="text-sm font-medium">Education</div>
                   <div className="text-sm text-muted-foreground">
-                    Grade {profile?.studentProfile?.gradeLevel} at {profile?.studentProfile?.schoolName}
+                    Grade {profile?.studentProfile?.gradeLevel} at{' '}
+                    {profile?.studentProfile?.schoolName}
                   </div>
                 </div>
               </div>
-              {profile?.studentProfile?.interests.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Areas of Interest</div>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.studentProfile.interests.map((interest) => (
-                      <div
-                        key={interest}
-                        className="rounded-lg border bg-muted/40 px-3 py-1 text-sm"
-                      >
-                        {interest}
-                      </div>
-                    ))}
+              {profile?.studentProfile?.interests &&
+                profile.studentProfile.interests.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">Areas of Interest</div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.studentProfile.interests.map((interest) => (
+                        <div
+                          key={interest}
+                          className="rounded-lg border bg-muted/40 px-3 py-1 text-sm"
+                        >
+                          {interest}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </CardContent>
           </Card>
         ) : (
@@ -409,7 +436,8 @@ export default function ProfilePage() {
                 <div className="space-y-1">
                   <div className="text-sm font-medium">Current Position</div>
                   <div className="text-sm text-muted-foreground">
-                    {profile?.alumniProfile?.profession} at {profile?.alumniProfile?.company}
+                    {profile?.alumniProfile?.profession} at{' '}
+                    {profile?.alumniProfile?.company}
                   </div>
                 </div>
               </div>
@@ -422,25 +450,28 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              {profile?.alumniProfile?.expertise.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">Areas of Expertise</div>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.alumniProfile.expertise.map((area) => (
-                      <div
-                        key={area}
-                        className="rounded-lg border bg-muted/40 px-3 py-1 text-sm"
-                      >
-                        {area}
-                      </div>
-                    ))}
+              {profile?.alumniProfile?.expertise &&
+                profile.alumniProfile.expertise.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">
+                      Areas of Expertise
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.alumniProfile.expertise.map((area) => (
+                        <div
+                          key={area}
+                          className="rounded-lg border bg-muted/40 px-3 py-1 text-sm"
+                        >
+                          {area}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </CardContent>
           </Card>
         )}
       </div>
     </Shell>
   )
-} 
+}

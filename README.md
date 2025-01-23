@@ -5,6 +5,7 @@ A platform connecting high school students with alumni mentors for guidance and 
 ## Features
 
 ### For Students
+
 - Find mentors based on their expertise and professional background
 - Send mentorship requests to alumni
 - Schedule one-on-one mentoring sessions
@@ -12,6 +13,7 @@ A platform connecting high school students with alumni mentors for guidance and 
 - Manage mentorship requests and connections
 
 ### For Alumni
+
 - Create a professional profile highlighting expertise and experience
 - Set weekly availability for mentoring sessions
 - Accept/reject mentorship requests
@@ -42,16 +44,19 @@ A platform connecting high school students with alumni mentors for guidance and 
 1. Create a `docker-compose.yml` file in the root directory (already included in the repository).
 
 2. Start the PostgreSQL container:
+
 ```bash
 docker-compose up -d
 ```
 
 3. Verify the container is running:
+
 ```bash
 docker-compose ps
 ```
 
 4. To stop the database:
+
 ```bash
 docker-compose down
 ```
@@ -63,18 +68,21 @@ The database will be available at `postgresql://postgres:postgres@localhost:5433
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone git@github.com:swiftugandan/mentor.git
 cd mentor
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
-Create a `.env` file in the root directory with the following variables:
+   Create a `.env` file in the root directory with the following variables:
+
 ```env
 # If using Docker:
 DATABASE_URL="postgresql://postgres:postgres@localhost:5433/mentor_db"
@@ -86,11 +94,13 @@ NEXTAUTH_SECRET="your-secret-key"
 ```
 
 4. Set up the database:
+
 ```bash
 npx prisma migrate dev
 ```
 
 5. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -115,22 +125,26 @@ src/
 ## Features in Detail
 
 ### Authentication
+
 - Email/password authentication
 - Role-based access control (Student/Alumni)
 - Protected routes and API endpoints
 
 ### Profile Management
+
 - Separate profile types for students and alumni
 - Editable professional information
 - Skills and interests tracking
 
 ### Mentorship System
+
 - Request-based mentorship connections
 - Availability management for mentors
 - Session scheduling with availability checks
 - Session status tracking (Scheduled/Completed/Cancelled)
 
 ### Dashboard
+
 - Role-specific dashboards
 - Upcoming sessions overview
 - Recent activity tracking
@@ -153,11 +167,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 You can run the entire application stack (Next.js app and PostgreSQL) using Docker Compose:
 
 1. Build and start the containers:
+
 ```bash
 docker-compose up --build
 ```
 
 This will:
+
 - Start PostgreSQL database
 - Wait for database to be ready
 - Run all pending migrations automatically
@@ -166,16 +182,19 @@ This will:
 2. The application will be available at `http://localhost:3000`
 
 3. To stop the application:
+
 ```bash
 docker-compose down
 ```
 
 4. To view logs:
+
 ```bash
 docker-compose logs -f
 ```
 
 The Docker setup includes:
+
 - Next.js application running in production mode
 - PostgreSQL database with persistent storage
 - Automatic database migrations on startup

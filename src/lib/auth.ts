@@ -1,13 +1,13 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
-import { JWT } from "next-auth/jwt"
-import { Session } from "next-auth"
-import { UserRole } from "@prisma/client"
+import { PrismaAdapter } from '@auth/prisma-adapter'
+import { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import bcrypt from 'bcryptjs'
+import { JWT } from 'next-auth/jwt'
+import { Session } from 'next-auth'
+import { UserRole } from '@prisma/client'
 
-import { db } from "@/lib/db"
-import { loginSchema } from "@/lib/validations/auth"
+import { db } from '@/lib/db'
+import { loginSchema } from '@/lib/validations/auth'
 
 type ExtendedSession = Session & {
   user: {
@@ -27,17 +27,17 @@ export const authOptions: NextAuthOptions = {
   // @ts-expect-error - Type mismatch between @auth/prisma-adapter and next-auth is a known issue
   adapter: PrismaAdapter(db),
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const validatedFields = loginSchema.safeParse(credentials)
@@ -104,4 +104,4 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-} 
+}

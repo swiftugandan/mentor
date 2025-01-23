@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useQuery, useMutation } from "@tanstack/react-query"
-import { Search } from "lucide-react"
-import { toast } from "sonner"
-import { useSession } from "next-auth/react"
-import { UserRole } from "@prisma/client"
-import { redirect } from "next/navigation"
+import { useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Search } from 'lucide-react'
+import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
+import { UserRole } from '@prisma/client'
+import { redirect } from 'next/navigation'
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -17,14 +17,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -32,24 +32,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { PageHeader } from "@/components/page-header"
-import { Shell } from "@/components/shell"
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { PageHeader } from '@/components/page-header'
+import { Shell } from '@/components/shell'
 
 const expertiseAreas = [
-  "All Areas",
-  "Engineering",
-  "Business",
-  "Medicine",
-  "Law",
-  "Education",
-  "Technology",
-  "Arts",
-  "Science",
+  'All Areas',
+  'Engineering',
+  'Business',
+  'Medicine',
+  'Law',
+  'Education',
+  'Technology',
+  'Arts',
+  'Science',
 ] as const
 
-type ExpertiseArea = typeof expertiseAreas[number]
+type ExpertiseArea = (typeof expertiseAreas)[number]
 
 interface Mentor {
   id: string
@@ -62,65 +62,83 @@ interface Mentor {
   }
 }
 
-interface ExtendedUser {
-  id: string
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  role: UserRole
-}
-
 export default function MentorsPage() {
-  const { data: session } = useSession({
+  const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
       redirect('/login')
     },
   })
 
-  // Redirect if not a student
-  if ((session?.user as ExtendedUser)?.role !== UserRole.STUDENT) {
-    redirect('/dashboard')
+  // Show loading state while session is loading
+  if (status === 'loading') {
+    return (
+      <Shell>
+        <PageHeader
+          heading="Find Mentors"
+          text="Connect with alumni mentors who can guide you on your journey"
+        />
+        <div className="flex h-[450px] items-center justify-center">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </Shell>
+    )
   }
 
-  const [search, setSearch] = useState("")
-  const [expertise, setExpertise] = useState<ExpertiseArea>("All Areas")
+  // Redirect if not a student
+  if (session?.user?.role !== UserRole.STUDENT) {
+    redirect('/dashboard')
+    return null
+  }
+
+  return <MentorsContent />
+}
+
+function MentorsContent() {
+  const [search, setSearch] = useState('')
+  const [expertise, setExpertise] = useState<ExpertiseArea>('All Areas')
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null)
-  const [message, setMessage] = useState("")
+  const [message, setMessage] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const { data: mentors, isLoading } = useQuery<Mentor[]>({
-    queryKey: ["mentors", search, expertise],
+    queryKey: ['mentors', search, expertise],
     queryFn: async () => {
       const params = new URLSearchParams()
-      if (search) params.append("search", search)
-      if (expertise !== "All Areas") params.append("expertise", expertise)
-      
+      if (search) params.append('search', search)
+      if (expertise !== 'All Areas') params.append('expertise', expertise)
+
       const response = await fetch(`/api/mentors?${params.toString()}`)
-      if (!response.ok) throw new Error("Failed to fetch mentors")
+      if (!response.ok) throw new Error('Failed to fetch mentors')
       return response.json()
     },
   })
 
   const requestMutation = useMutation({
-    mutationFn: async ({ alumniId, message }: { alumniId: string; message: string }) => {
-      const response = await fetch("/api/mentorship-requests", {
-        method: "POST",
+    mutationFn: async ({
+      alumniId,
+      message,
+    }: {
+      alumniId: string
+      message: string
+    }) => {
+      const response = await fetch('/api/mentorship-requests', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ alumniId, message }),
       })
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || "Failed to send request")
+        throw new Error(error.error || 'Failed to send request')
       }
       return response.json()
     },
     onSuccess: () => {
-      toast.success("Mentorship request sent successfully")
+      toast.success('Mentorship request sent successfully')
       setIsDialogOpen(false)
-      setMessage("")
+      setMessage('')
       setSelectedMentor(null)
     },
     onError: (error: Error) => {
@@ -135,7 +153,7 @@ export default function MentorsPage() {
 
   const handleSubmitRequest = () => {
     if (!message.trim()) {
-      toast.error("Please enter a message")
+      toast.error('Please enter a message')
       return
     }
 
@@ -164,7 +182,10 @@ export default function MentorsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Select value={expertise} onValueChange={(value: ExpertiseArea) => setExpertise(value)}>
+        <Select
+          value={expertise}
+          onValueChange={(value: ExpertiseArea) => setExpertise(value)}
+        >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filter by expertise" />
           </SelectTrigger>
@@ -189,14 +210,15 @@ export default function MentorsPage() {
               <CardHeader>
                 <CardTitle>{mentor.name}</CardTitle>
                 <CardDescription>
-                  {mentor.alumniProfile.profession} at {mentor.alumniProfile.company}
+                  {mentor.alumniProfile.profession} at{' '}
+                  {mentor.alumniProfile.company}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div>
                   <div className="font-medium">Expertise</div>
                   <div className="text-sm text-muted-foreground">
-                    {mentor.alumniProfile.expertise.join(", ")}
+                    {mentor.alumniProfile.expertise.join(', ')}
                   </div>
                 </div>
                 {mentor.alumniProfile.bio && (
@@ -209,8 +231,8 @@ export default function MentorsPage() {
                 )}
               </CardContent>
               <CardFooter>
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   onClick={() => handleRequestMentorship(mentor)}
                   disabled={requestMutation.isPending}
                 >
@@ -232,7 +254,8 @@ export default function MentorsPage() {
           <DialogHeader>
             <DialogTitle>Request Mentorship</DialogTitle>
             <DialogDescription>
-              Send a message to {selectedMentor?.name} explaining why you&apos;d like them to be your mentor.
+              Send a message to {selectedMentor?.name} explaining why you&apos;d
+              like them to be your mentor.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -255,11 +278,11 @@ export default function MentorsPage() {
               onClick={handleSubmitRequest}
               disabled={requestMutation.isPending}
             >
-              {requestMutation.isPending ? "Sending..." : "Send Request"}
+              {requestMutation.isPending ? 'Sending...' : 'Send Request'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </Shell>
   )
-} 
+}

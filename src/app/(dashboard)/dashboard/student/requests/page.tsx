@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { useQuery } from "@tanstack/react-query"
-import { format } from "date-fns"
-import { CheckCircle2, Clock, XCircle } from "lucide-react"
+import { useQuery } from '@tanstack/react-query'
+import { format } from 'date-fns'
+import { CheckCircle2, Clock, XCircle } from 'lucide-react'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MentorshipRequest, MentorshipRequestStatus } from "@/types"
-import { PageHeader } from "@/components/page-header"
-import { Shell } from "@/components/shell"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { MentorshipRequest } from '@/types'
+import { PageHeader } from '@/components/page-header'
+import { Shell } from '@/components/shell'
 
 const statusIcons = {
   PENDING: Clock,
@@ -17,24 +17,24 @@ const statusIcons = {
 } as const
 
 const statusColors = {
-  PENDING: "text-yellow-500",
-  ACCEPTED: "text-green-500",
-  REJECTED: "text-red-500",
+  PENDING: 'text-yellow-500',
+  ACCEPTED: 'text-green-500',
+  REJECTED: 'text-red-500',
 } as const
 
 export default function RequestsPage() {
   const { data: requests = [], isLoading } = useQuery<MentorshipRequest[]>({
-    queryKey: ["mentorship-requests"],
+    queryKey: ['mentorship-requests'],
     queryFn: async () => {
-      const response = await fetch("/api/mentorship-requests")
-      if (!response.ok) throw new Error("Failed to fetch requests")
+      const response = await fetch('/api/mentorship-requests')
+      if (!response.ok) throw new Error('Failed to fetch requests')
       return response.json()
     },
   })
 
-  const pendingRequests = requests.filter((req) => req.status === "PENDING")
-  const acceptedRequests = requests.filter((req) => req.status === "ACCEPTED")
-  const rejectedRequests = requests.filter((req) => req.status === "REJECTED")
+  const pendingRequests = requests.filter((req) => req.status === 'PENDING')
+  const acceptedRequests = requests.filter((req) => req.status === 'ACCEPTED')
+  const rejectedRequests = requests.filter((req) => req.status === 'REJECTED')
 
   const RequestCard = ({ request }: { request: MentorshipRequest }) => {
     const StatusIcon = statusIcons[request.status]
@@ -51,7 +51,8 @@ export default function RequestsPage() {
           <div className="space-y-2">
             <div className="text-sm font-medium">Profession</div>
             <div className="text-sm text-muted-foreground">
-              {request.alumni.alumniProfile.profession} at {request.alumni.alumniProfile.company}
+              {request.alumni.alumniProfile.profession} at{' '}
+              {request.alumni.alumniProfile.company}
             </div>
           </div>
           <div className="space-y-2">
@@ -63,7 +64,7 @@ export default function RequestsPage() {
           <div className="space-y-2">
             <div className="text-sm font-medium">Sent</div>
             <div className="text-sm text-muted-foreground">
-              {format(new Date(request.createdAt), "PPP")}
+              {format(new Date(request.createdAt), 'PPP')}
             </div>
           </div>
         </CardContent>
@@ -93,11 +94,15 @@ export default function RequestsPage() {
         <TabsContent value="pending" className="space-y-4">
           {isLoading ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading requests...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading requests...
+              </p>
             </div>
           ) : pendingRequests.length === 0 ? (
             <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
-              <p className="text-sm text-muted-foreground">No pending requests</p>
+              <p className="text-sm text-muted-foreground">
+                No pending requests
+              </p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -111,11 +116,15 @@ export default function RequestsPage() {
         <TabsContent value="accepted" className="space-y-4">
           {isLoading ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading requests...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading requests...
+              </p>
             </div>
           ) : acceptedRequests.length === 0 ? (
             <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
-              <p className="text-sm text-muted-foreground">No accepted requests</p>
+              <p className="text-sm text-muted-foreground">
+                No accepted requests
+              </p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -129,11 +138,15 @@ export default function RequestsPage() {
         <TabsContent value="rejected" className="space-y-4">
           {isLoading ? (
             <div className="flex h-[450px] items-center justify-center">
-              <p className="text-sm text-muted-foreground">Loading requests...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading requests...
+              </p>
             </div>
           ) : rejectedRequests.length === 0 ? (
             <div className="flex h-[200px] items-center justify-center rounded-lg border bg-muted/40">
-              <p className="text-sm text-muted-foreground">No rejected requests</p>
+              <p className="text-sm text-muted-foreground">
+                No rejected requests
+              </p>
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -146,4 +159,4 @@ export default function RequestsPage() {
       </Tabs>
     </Shell>
   )
-} 
+}

@@ -1,7 +1,7 @@
-import { UserRole } from "@prisma/client"
-import "next-auth"
+import { UserRole } from '@prisma/client'
+import 'next-auth'
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface User {
     id: string
     role: UserRole
@@ -13,4 +13,4 @@ declare module "next-auth" {
       role: UserRole
     }
   }
-} 
+}

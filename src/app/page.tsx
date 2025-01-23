@@ -1,8 +1,13 @@
 /* eslint-disable react/no-unescaped-entities */
-import Link from "next/link"
-import { ArrowRight, GraduationCap, Users, Target } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Link from 'next/link'
+import { ArrowRight, GraduationCap, Users, Target } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 
 function Logo() {
   return (
@@ -22,7 +27,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center justify-between">
-          <Link href="/" className="hover:opacity-90 transition-opacity">
+          <Link href="/" className="transition-opacity hover:opacity-90">
             <Logo />
           </Link>
           <div className="space-x-4">
@@ -39,15 +44,16 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="flex justify-center space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
-          <div className="flex max-w-[64rem] flex-col items-center justify-center gap-4 text-center px-6">
+          <div className="flex max-w-[64rem] flex-col items-center justify-center gap-4 px-6 text-center">
             <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl">
-              Your Bridge to{" "}
+              Your Bridge to{' '}
               <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                 Professional Success
               </span>
             </h1>
             <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-              Connect with experienced alumni mentors who can guide you through your academic journey and help shape your future career path.
+              Connect with experienced alumni mentors who can guide you through
+              your academic journey and help shape your future career path.
             </p>
             <div className="space-x-4">
               <Link href="/register">
@@ -56,7 +62,9 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/login">
-                <Button variant="outline" size="lg">Sign In</Button>
+                <Button variant="outline" size="lg">
+                  Sign In
+                </Button>
               </Link>
             </div>
           </div>
@@ -70,35 +78,45 @@ export default function Home() {
                 Why Choose Alumni Mentor?
               </h2>
               <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-                Our platform offers unique opportunities to connect, learn, and grow with experienced mentors who've walked your path.
+                Our platform offers unique opportunities to connect, learn, and
+                grow with experienced mentors who've walked your path.
               </p>
             </div>
             <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
               <Card className="flex flex-col items-center">
                 <CardHeader>
-                  <div className="p-2 bg-primary/10 rounded-full mb-4">
+                  <div className="mb-4 rounded-full bg-primary/10 p-2">
                     <GraduationCap className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>Expert Guidance</CardTitle>
-                  <CardDescription>Get personalized advice from successful alumni in your field of interest</CardDescription>
+                  <CardDescription>
+                    Get personalized advice from successful alumni in your field
+                    of interest
+                  </CardDescription>
                 </CardHeader>
               </Card>
               <Card className="flex flex-col items-center">
                 <CardHeader>
-                  <div className="p-2 bg-primary/10 rounded-full mb-4">
+                  <div className="mb-4 rounded-full bg-primary/10 p-2">
                     <Users className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>1:1 Mentorship</CardTitle>
-                  <CardDescription>Build meaningful connections through one-on-one mentoring sessions</CardDescription>
+                  <CardDescription>
+                    Build meaningful connections through one-on-one mentoring
+                    sessions
+                  </CardDescription>
                 </CardHeader>
               </Card>
               <Card className="flex flex-col items-center">
                 <CardHeader>
-                  <div className="p-2 bg-primary/10 rounded-full mb-4">
+                  <div className="mb-4 rounded-full bg-primary/10 p-2">
                     <Target className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle>Career Planning</CardTitle>
-                  <CardDescription>Set and achieve your academic and career goals with expert insights</CardDescription>
+                  <CardDescription>
+                    Set and achieve your academic and career goals with expert
+                    insights
+                  </CardDescription>
                 </CardHeader>
               </Card>
             </div>
@@ -125,7 +143,9 @@ export default function Home() {
                     </span>
                     Create Profile
                   </CardTitle>
-                  <CardDescription>Sign up and tell us about your interests and goals</CardDescription>
+                  <CardDescription>
+                    Sign up and tell us about your interests and goals
+                  </CardDescription>
                 </CardHeader>
               </Card>
               <Card>
@@ -136,7 +156,9 @@ export default function Home() {
                     </span>
                     Find Mentors
                   </CardTitle>
-                  <CardDescription>Browse and connect with mentors in your areas of interest</CardDescription>
+                  <CardDescription>
+                    Browse and connect with mentors in your areas of interest
+                  </CardDescription>
                 </CardHeader>
               </Card>
               <Card>
@@ -147,7 +169,9 @@ export default function Home() {
                     </span>
                     Start Learning
                   </CardTitle>
-                  <CardDescription>Schedule sessions and begin your mentorship journey</CardDescription>
+                  <CardDescription>
+                    Schedule sessions and begin your mentorship journey
+                  </CardDescription>
                 </CardHeader>
               </Card>
             </div>
@@ -163,7 +187,8 @@ export default function Home() {
                   Ready to Start Your Journey?
                 </h2>
                 <p className="max-w-[42rem] text-white/80 sm:text-lg sm:leading-8">
-                  Join our community of students and mentors today and take the first step towards your future success.
+                  Join our community of students and mentors today and take the
+                  first step towards your future success.
                 </p>
                 <Link href="/register">
                   <Button size="lg" variant="secondary" className="mt-4">
@@ -182,10 +207,16 @@ export default function Home() {
             © {new Date().getFullYear()} AlumniMentor. All rights reserved.
           </p>
           <div className="flex items-center space-x-4">
-            <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link
+              href="/login"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               Sign In
             </Link>
-            <Link href="/register" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link
+              href="/register"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               Sign Up
             </Link>
           </div>

@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { UserRole } from "@prisma/client"
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { UserRole } from '@prisma/client'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -14,35 +14,55 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 
-import { loginSchema, studentRegistrationSchema, alumniRegistrationSchema } from "@/lib/validations/auth"
-import type { AuthForm, StudentRegistrationForm, AlumniRegistrationForm } from "@/types"
+import {
+  loginSchema,
+  studentRegistrationSchema,
+  alumniRegistrationSchema,
+} from '@/lib/validations/auth'
+import type {
+  AuthForm,
+  StudentRegistrationForm,
+  AlumniRegistrationForm,
+} from '@/types'
 
 interface Props {
-  type: "login" | "register"
-  onSubmit: (data: AuthForm | StudentRegistrationForm | AlumniRegistrationForm) => void
+  type: 'login' | 'register'
+  onSubmit: (
+    data: AuthForm | StudentRegistrationForm | AlumniRegistrationForm
+  ) => void
 }
 
 export function AuthForm({ type, onSubmit }: Props) {
   const [role, setRole] = useState<UserRole | undefined>(undefined)
-  
-  const form = useForm<z.infer<typeof loginSchema> | z.infer<typeof studentRegistrationSchema> | z.infer<typeof alumniRegistrationSchema>>({
+
+  const form = useForm<
+    | z.infer<typeof loginSchema>
+    | z.infer<typeof studentRegistrationSchema>
+    | z.infer<typeof alumniRegistrationSchema>
+  >({
     resolver: zodResolver(
-      type === "login" 
-        ? loginSchema 
-        : role === UserRole.STUDENT 
-          ? studentRegistrationSchema 
+      type === 'login'
+        ? loginSchema
+        : role === UserRole.STUDENT
+          ? studentRegistrationSchema
           : alumniRegistrationSchema
     ),
     defaultValues: {
-      email: "",
-      password: "",
-      ...(type === "register" && {
-        name: "",
+      email: '',
+      password: '',
+      ...(type === 'register' && {
+        name: '',
       }),
     },
   })
@@ -70,14 +90,18 @@ export function AuthForm({ type, onSubmit }: Props) {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Enter your password" {...field} />
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
-        {type === "register" && (
+
+        {type === 'register' && (
           <>
             <FormField
               control={form.control}
@@ -98,10 +122,13 @@ export function AuthForm({ type, onSubmit }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>I am a</FormLabel>
-                  <Select onValueChange={(value: UserRole) => {
-                    field.onChange(value)
-                    setRole(value)
-                  }} value={field.value}>
+                  <Select
+                    onValueChange={(value: UserRole) => {
+                      field.onChange(value)
+                      setRole(value)
+                    }}
+                    value={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select your role" />
@@ -126,7 +153,15 @@ export function AuthForm({ type, onSubmit }: Props) {
                     <FormItem>
                       <FormLabel>Grade Level</FormLabel>
                       <FormControl>
-                        <Input type="number" min={9} max={12} {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
+                        <Input
+                          type="number"
+                          min={9}
+                          max={12}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -139,7 +174,10 @@ export function AuthForm({ type, onSubmit }: Props) {
                     <FormItem>
                       <FormLabel>School Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your school name" {...field} />
+                        <Input
+                          placeholder="Enter your school name"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -152,10 +190,14 @@ export function AuthForm({ type, onSubmit }: Props) {
                     <FormItem>
                       <FormLabel>Interests (comma-separated)</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="e.g. Science, Technology, Arts" 
-                          {...field} 
-                          onChange={e => field.onChange(e.target.value.split(",").map(i => i.trim()))}
+                        <Input
+                          placeholder="e.g. Science, Technology, Arts"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.split(',').map((i) => i.trim())
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -187,7 +229,10 @@ export function AuthForm({ type, onSubmit }: Props) {
                     <FormItem>
                       <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your company name" {...field} />
+                        <Input
+                          placeholder="Enter your company name"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -200,12 +245,14 @@ export function AuthForm({ type, onSubmit }: Props) {
                     <FormItem>
                       <FormLabel>Graduation Year</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="number" 
-                          min={1900} 
-                          max={new Date().getFullYear()} 
-                          {...field} 
-                          onChange={e => field.onChange(parseInt(e.target.value))}
+                        <Input
+                          type="number"
+                          min={1900}
+                          max={new Date().getFullYear()}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value))
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -217,12 +264,18 @@ export function AuthForm({ type, onSubmit }: Props) {
                   name="expertise"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Areas of Expertise (comma-separated)</FormLabel>
+                      <FormLabel>
+                        Areas of Expertise (comma-separated)
+                      </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="e.g. Engineering, Business, Medicine" 
-                          {...field} 
-                          onChange={e => field.onChange(e.target.value.split(",").map(i => i.trim()))}
+                        <Input
+                          placeholder="e.g. Engineering, Business, Medicine"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.split(',').map((i) => i.trim())
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -240,10 +293,10 @@ export function AuthForm({ type, onSubmit }: Props) {
                   <FormItem>
                     <FormLabel>Bio (optional)</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Tell us about yourself..." 
-                        className="resize-none" 
-                        {...field} 
+                      <Textarea
+                        placeholder="Tell us about yourself..."
+                        className="resize-none"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -255,9 +308,9 @@ export function AuthForm({ type, onSubmit }: Props) {
         )}
 
         <Button type="submit" className="w-full">
-          {type === "login" ? "Sign In" : "Sign Up"}
+          {type === 'login' ? 'Sign In' : 'Sign Up'}
         </Button>
       </form>
     </Form>
   )
-} 
+}

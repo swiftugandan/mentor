@@ -1,33 +1,33 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { UserRole, Prisma } from "@prisma/client"
-import { z } from "zod"
-import { differenceInMinutes, addMinutes } from "date-fns"
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { UserRole, Prisma } from '@prisma/client'
+import { z } from 'zod'
+import { differenceInMinutes, addMinutes } from 'date-fns'
 
-import { authOptions } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { NotificationService } from "@/lib/notification-service"
+import { authOptions } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { NotificationService } from '@/lib/notification-service'
 import {
   validateSessionTime,
   createSessionUpdateData,
   MIN_DURATION,
   MAX_DURATION,
   BUFFER_TIME,
-} from "@/lib/session-utils"
+} from '@/lib/session-utils'
 
 const notificationService = new NotificationService()
 
-const SESSION_STATUSES = ["SCHEDULED", "COMPLETED", "CANCELLED"] as const
+const SESSION_STATUSES = ['SCHEDULED', 'COMPLETED', 'CANCELLED'] as const
 
-type Location = "ONLINE" | "IN_PERSON"
-type MeetingType = "VIDEO" | "AUDIO" | "IN_PERSON"
+type Location = 'ONLINE' | 'IN_PERSON'
+type MeetingType = 'VIDEO' | 'AUDIO' | 'IN_PERSON'
 
 // Validate that meeting type matches location
 const validateMeetingType = (location: Location, meetingType: MeetingType) => {
-  if (location === "IN_PERSON" && meetingType !== "IN_PERSON") {
+  if (location === 'IN_PERSON' && meetingType !== 'IN_PERSON') {
     return false
   }
-  if (location === "ONLINE" && meetingType === "IN_PERSON") {
+  if (location === 'ONLINE' && meetingType === 'IN_PERSON') {
     return false
   }
   return true
@@ -46,19 +46,16 @@ async function checkSchedulingConflicts(
 
   const overlappingSessions = await db.mentorshipSession.findFirst({
     where: {
-      status: "SCHEDULED",
+      status: 'SCHEDULED',
       id: sessionId ? { not: sessionId } : undefined,
       startTime: { lt: bufferEnd },
       endTime: { gt: bufferStart },
-      OR: [
-        { mentorId },
-        { studentId }
-      ]
-    }
+      OR: [{ mentorId }, { studentId }],
+    },
   })
 
   if (overlappingSessions) {
-    return "This time slot conflicts with another session"
+    return 'This time slot conflicts with another session'
   }
 
   return null
@@ -74,85 +71,120 @@ function getUserTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
-const sessionSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  startTime: z.string().datetime(),
-  endTime: z.string().datetime(),
-  mentorId: z.string(),
-  agenda: z.string().optional(),
-  location: z.enum(["ONLINE", "IN_PERSON"]),
-  meetingType: z.enum(["VIDEO", "AUDIO", "IN_PERSON"]),
-  meetingLink: z.string().url("Invalid meeting link").optional(),
-  venue: z.string().min(1, "Venue is required for in-person meetings").optional(),
-}).refine(data => {
-  const startTime = new Date(data.startTime)
-  const endTime = new Date(data.endTime)
-  const duration = differenceInMinutes(endTime, startTime)
-  return duration >= MIN_DURATION && duration <= MAX_DURATION
-}, {
-  message: `Session duration must be between ${MIN_DURATION} and ${MAX_DURATION} minutes`
-}).refine(data => {
-  return validateMeetingType(data.location as Location, data.meetingType as MeetingType)
-}, {
-  message: "Invalid meeting type for selected location"
-}).refine(data => {
-  if (data.location === "IN_PERSON" && !data.venue) {
-    return false
-  }
-  return true
-}, {
-  message: "Venue is required for in-person meetings"
-})
+const sessionSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().optional(),
+    startTime: z.string().datetime(),
+    endTime: z.string().datetime(),
+    mentorId: z.string(),
+    agenda: z.string().optional(),
+    location: z.enum(['ONLINE', 'IN_PERSON']),
+    meetingType: z.enum(['VIDEO', 'AUDIO', 'IN_PERSON']),
+    meetingLink: z.string().url('Invalid meeting link').optional(),
+    venue: z
+      .string()
+      .min(1, 'Venue is required for in-person meetings')
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      const startTime = new Date(data.startTime)
+      const endTime = new Date(data.endTime)
+      const duration = differenceInMinutes(endTime, startTime)
+      return duration >= MIN_DURATION && duration <= MAX_DURATION
+    },
+    {
+      message: `Session duration must be between ${MIN_DURATION} and ${MAX_DURATION} minutes`,
+    }
+  )
+  .refine(
+    (data) => {
+      return validateMeetingType(
+        data.location as Location,
+        data.meetingType as MeetingType
+      )
+    },
+    {
+      message: 'Invalid meeting type for selected location',
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.location === 'IN_PERSON' && !data.venue) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Venue is required for in-person meetings',
+    }
+  )
 
-const updateSchema = z.object({
-  id: z.string(),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  startTime: z.string().datetime().optional(),
-  endTime: z.string().datetime().optional(),
-  agenda: z.string().optional(),
-  status: z.enum(SESSION_STATUSES).optional(),
-  notes: z.string().optional(),
-  feedback: z.string().optional(),
-  studentFeedback: z.string().optional(),
-  mentorRating: z.number().min(1).max(5).optional(),
-  studentRating: z.number().min(1).max(5).optional(),
-  location: z.enum(["ONLINE", "IN_PERSON"]).optional(),
-  meetingType: z.enum(["VIDEO", "AUDIO", "IN_PERSON"]).optional(),
-  meetingLink: z.string().url("Invalid meeting link").optional(),
-  venue: z.string().min(1, "Venue is required for in-person meetings").optional(),
-}).refine(data => {
-  if (!data.startTime || !data.endTime) return true
-  const startTime = new Date(data.startTime)
-  const endTime = new Date(data.endTime)
-  const duration = differenceInMinutes(endTime, startTime)
-  return duration >= MIN_DURATION && duration <= MAX_DURATION
-}, {
-  message: `Session duration must be between ${MIN_DURATION} and ${MAX_DURATION} minutes`
-}).refine(data => {
-  if (!data.location || !data.meetingType) return true
-  return validateMeetingType(data.location as Location, data.meetingType as MeetingType)
-}, {
-  message: "Invalid meeting type for selected location"
-}).refine(data => {
-  if (data.location === "IN_PERSON" && !data.venue) {
-    return false
-  }
-  return true
-}, {
-  message: "Venue is required for in-person meetings"
-})
+const updateSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    startTime: z.string().datetime().optional(),
+    endTime: z.string().datetime().optional(),
+    agenda: z.string().optional(),
+    status: z.enum(SESSION_STATUSES).optional(),
+    notes: z.string().optional(),
+    feedback: z.string().optional(),
+    studentFeedback: z.string().optional(),
+    mentorRating: z.number().min(1).max(5).optional(),
+    studentRating: z.number().min(1).max(5).optional(),
+    location: z.enum(['ONLINE', 'IN_PERSON']).optional(),
+    meetingType: z.enum(['VIDEO', 'AUDIO', 'IN_PERSON']).optional(),
+    meetingLink: z.string().url('Invalid meeting link').optional(),
+    venue: z
+      .string()
+      .min(1, 'Venue is required for in-person meetings')
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.startTime || !data.endTime) return true
+      const startTime = new Date(data.startTime)
+      const endTime = new Date(data.endTime)
+      const duration = differenceInMinutes(endTime, startTime)
+      return duration >= MIN_DURATION && duration <= MAX_DURATION
+    },
+    {
+      message: `Session duration must be between ${MIN_DURATION} and ${MAX_DURATION} minutes`,
+    }
+  )
+  .refine(
+    (data) => {
+      if (!data.location || !data.meetingType) return true
+      return validateMeetingType(
+        data.location as Location,
+        data.meetingType as MeetingType
+      )
+    },
+    {
+      message: 'Invalid meeting type for selected location',
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.location === 'IN_PERSON' && !data.venue) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Venue is required for in-person meetings',
+    }
+  )
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session || session.user.role !== UserRole.STUDENT) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const json = await req.json()
@@ -160,7 +192,10 @@ export async function POST(req: Request) {
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { error: "Invalid fields", details: validatedFields.error.flatten().fieldErrors },
+        {
+          error: 'Invalid fields',
+          details: validatedFields.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
@@ -168,7 +203,7 @@ export async function POST(req: Request) {
     const body = validatedFields.data
     const startTime = new Date(body.startTime)
     const endTime = new Date(body.endTime)
-    
+
     // Validate session time
     const timeValidation = validateSessionTime(startTime, endTime)
     if (!timeValidation.isValid) {
@@ -183,13 +218,16 @@ export async function POST(req: Request) {
       where: {
         studentId: session.user.id,
         alumniId: body.mentorId,
-        status: "ACCEPTED",
+        status: 'ACCEPTED',
       },
     })
 
     if (!request) {
       return NextResponse.json(
-        { error: "You must have an accepted mentorship request to schedule a session" },
+        {
+          error:
+            'You must have an accepted mentorship request to schedule a session',
+        },
         { status: 403 }
       )
     }
@@ -197,23 +235,23 @@ export async function POST(req: Request) {
     // Get the alumni profile
     const alumniProfile = await db.alumniProfile.findFirst({
       where: {
-        userId: body.mentorId
-      }
+        userId: body.mentorId,
+      },
     })
 
     if (!alumniProfile) {
       return NextResponse.json(
-        { error: "Mentor profile not found" },
+        { error: 'Mentor profile not found' },
         { status: 404 }
       )
     }
 
     // Check availability
     const dayOfWeek = startTime.getDay()
-    const timeString = startTime.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit'
+    const timeString = startTime.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
     })
 
     const availability = await db.availability.findFirst({
@@ -231,7 +269,7 @@ export async function POST(req: Request) {
 
     if (!availability) {
       return NextResponse.json(
-        { error: "The mentor is not available at this time" },
+        { error: 'The mentor is not available at this time' },
         { status: 400 }
       )
     }
@@ -245,10 +283,7 @@ export async function POST(req: Request) {
     )
 
     if (conflictError) {
-      return NextResponse.json(
-        { error: conflictError },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: conflictError }, { status: 400 })
     }
 
     // For session creation
@@ -258,10 +293,10 @@ export async function POST(req: Request) {
       startTime,
       endTime,
       student: {
-        connect: { id: session.user.id }
+        connect: { id: session.user.id },
       },
       mentor: {
-        connect: { id: body.mentorId }
+        connect: { id: body.mentorId },
       },
       location: body.location,
       meetingType: body.meetingType,
@@ -285,30 +320,24 @@ export async function POST(req: Request) {
 
     // Send notifications
     await notificationService.notifySessionParticipants(
-      "SESSION_SCHEDULED",
+      'SESSION_SCHEDULED',
       mentorshipSession,
       session.user.id // Don't notify the creator
     )
 
     return NextResponse.json(mentorshipSession)
   } catch (error) {
-    console.error("[SESSIONS_POST]", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error('[SESSIONS_POST]', error)
+    return new NextResponse('Internal error', { status: 500 })
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const json = await req.json()
@@ -316,7 +345,10 @@ export async function PATCH(req: Request) {
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { error: "Invalid fields", details: validatedFields.error.flatten().fieldErrors },
+        {
+          error: 'Invalid fields',
+          details: validatedFields.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
@@ -327,10 +359,7 @@ export async function PATCH(req: Request) {
     const existingSession = await db.mentorshipSession.findFirst({
       where: {
         id: body.id,
-        OR: [
-          { studentId: session.user.id },
-          { mentorId: session.user.id },
-        ],
+        OR: [{ studentId: session.user.id }, { mentorId: session.user.id }],
       },
       include: {
         student: true,
@@ -339,10 +368,7 @@ export async function PATCH(req: Request) {
     })
 
     if (!existingSession) {
-      return NextResponse.json(
-        { error: "Session not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
     // Validate permissions based on role and status
@@ -350,22 +376,22 @@ export async function PATCH(req: Request) {
       // Students can only:
       // 1. Cancel their scheduled sessions
       // 2. Provide feedback and rating for completed sessions
-      if (body.status && body.status !== "CANCELLED") {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 401 }
-        )
+      if (body.status && body.status !== 'CANCELLED') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
 
-      if (existingSession.status === "COMPLETED" && (body.studentFeedback || body.mentorRating)) {
+      if (
+        existingSession.status === 'COMPLETED' &&
+        (body.studentFeedback || body.mentorRating)
+      ) {
         // Allow student feedback
-      } else if (existingSession.status === "SCHEDULED" && body.status === "CANCELLED") {
+      } else if (
+        existingSession.status === 'SCHEDULED' &&
+        body.status === 'CANCELLED'
+      ) {
         // Allow cancellation
       } else {
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 401 }
-        )
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
     }
 
@@ -393,18 +419,15 @@ export async function PATCH(req: Request) {
       )
 
       if (conflictError) {
-        return NextResponse.json(
-          { error: conflictError },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: conflictError }, { status: 400 })
       }
 
       // If changing time, verify mentor availability
       const dayOfWeek = startTime.getDay()
-      const timeString = startTime.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit'
+      const timeString = startTime.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
       })
 
       const availability = await db.availability.findFirst({
@@ -422,14 +445,18 @@ export async function PATCH(req: Request) {
 
       if (!availability) {
         return NextResponse.json(
-          { error: "The mentor is not available at this time" },
+          { error: 'The mentor is not available at this time' },
           { status: 400 }
         )
       }
     }
 
     // Create update data
-    const updateData = createSessionUpdateData(body, existingSession, session.user.id)
+    const updateData = createSessionUpdateData(
+      body,
+      existingSession,
+      session.user.id
+    )
 
     // Update the session
     const updatedSession = await db.mentorshipSession.update({
@@ -443,50 +470,43 @@ export async function PATCH(req: Request) {
 
     // Send notifications
     await notificationService.notifySessionParticipants(
-      "SESSION_UPDATED",
+      'SESSION_UPDATED',
       updatedSession,
       session.user.id
     )
 
     return NextResponse.json(updatedSession)
   } catch (error) {
-    console.error("[SESSIONS_PATCH]", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error('[SESSIONS_PATCH]', error)
+    return new NextResponse('Internal error', { status: 500 })
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get("status")
-    const from = searchParams.get("from")
-    const to = searchParams.get("to")
+    const status = searchParams.get('status')
+    const from = searchParams.get('from')
+    const to = searchParams.get('to')
 
     const sessions = await db.mentorshipSession.findMany({
       where: {
-        OR: [
-          { studentId: session.user.id },
-          { mentorId: session.user.id },
-        ],
+        OR: [{ studentId: session.user.id }, { mentorId: session.user.id }],
         ...(status ? { status } : {}),
-        ...(from || to ? {
-          startTime: {
-            ...(from ? { gte: new Date(from) } : {}),
-            ...(to ? { lte: new Date(to) } : {}),
-          }
-        } : {}),
+        ...(from || to
+          ? {
+              startTime: {
+                ...(from ? { gte: new Date(from) } : {}),
+                ...(to ? { lte: new Date(to) } : {}),
+              },
+            }
+          : {}),
       },
       include: {
         student: {
@@ -501,16 +521,13 @@ export async function GET(req: Request) {
         },
       },
       orderBy: {
-        startTime: "desc",
+        startTime: 'desc',
       },
     })
 
     return NextResponse.json(sessions)
   } catch (error) {
-    console.error("[SESSIONS_GET]", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error('[SESSIONS_GET]', error)
+    return new NextResponse('Internal error', { status: 500 })
   }
-} 
+}

@@ -1,28 +1,42 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { set } from "date-fns"
-import { toast } from "sonner"
-import { Clock } from "lucide-react"
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { set } from 'date-fns'
+import { toast } from 'sonner'
+import { Clock } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { PageHeader } from "@/components/page-header"
-import { Shell } from "@/components/shell"
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { PageHeader } from '@/components/page-header'
+import { Shell } from '@/components/shell'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import type { MentorshipRequest } from "@/types"
+} from '@/components/ui/select'
+import type { MentorshipRequest } from '@/types'
 
 interface Availability {
   id: string
@@ -33,15 +47,20 @@ interface Availability {
 
 export default function SchedulePage() {
   const queryClient = useQueryClient()
-  const [selectedMentor, setSelectedMentor] = useState<MentorshipRequest | null>(null)
+  const [selectedMentor, setSelectedMentor] =
+    useState<MentorshipRequest | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<Availability | null>(null)
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState<"ONLINE" | "IN_PERSON">("ONLINE")
-  const [meetingType, setMeetingType] = useState<"VIDEO" | "AUDIO" | "IN_PERSON">("VIDEO")
-  const [meetingLink, setMeetingLink] = useState("")
-  const [agenda, setAgenda] = useState("")
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<Availability | null>(
+    null
+  )
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [location, setLocation] = useState<'ONLINE' | 'IN_PERSON'>('ONLINE')
+  const [meetingType, setMeetingType] = useState<
+    'VIDEO' | 'AUDIO' | 'IN_PERSON'
+  >('VIDEO')
+  const [meetingLink, setMeetingLink] = useState('')
+  const [agenda, setAgenda] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Reset states when dialog closes
@@ -50,33 +69,39 @@ export default function SchedulePage() {
     if (!open) {
       setSelectedDate(undefined)
       setSelectedTimeSlot(null)
-      setTitle("")
-      setDescription("")
-      setLocation("ONLINE")
-      setMeetingType("VIDEO")
-      setMeetingLink("")
-      setAgenda("")
+      setTitle('')
+      setDescription('')
+      setLocation('ONLINE')
+      setMeetingType('VIDEO')
+      setMeetingLink('')
+      setAgenda('')
     }
   }
 
   // Fetch accepted mentorship requests
-  const { data: mentors = [], isLoading: isLoadingMentors } = useQuery<MentorshipRequest[]>({
-    queryKey: ["mentorship-requests"],
+  const { data: mentors = [], isLoading: isLoadingMentors } = useQuery<
+    MentorshipRequest[]
+  >({
+    queryKey: ['mentorship-requests'],
     queryFn: async () => {
-      const response = await fetch("/api/mentorship-requests")
-      if (!response.ok) throw new Error("Failed to fetch mentorship requests")
+      const response = await fetch('/api/mentorship-requests')
+      if (!response.ok) throw new Error('Failed to fetch mentorship requests')
       const requests = await response.json()
-      return requests.filter((request: MentorshipRequest) => request.status === "ACCEPTED")
+      return requests.filter(
+        (request: MentorshipRequest) => request.status === 'ACCEPTED'
+      )
     },
   })
 
   // Fetch mentor's availability when selected
   const { data: availability = [] } = useQuery<Availability[]>({
-    queryKey: ["availability", selectedMentor?.alumni.id],
+    queryKey: ['availability', selectedMentor?.alumni.id],
     queryFn: async () => {
       if (!selectedMentor) return []
-      const response = await fetch(`/api/availability?alumniId=${selectedMentor.alumni.id}`)
-      if (!response.ok) throw new Error("Failed to fetch availability")
+      const response = await fetch(
+        `/api/availability?alumniId=${selectedMentor.alumni.id}`
+      )
+      if (!response.ok) throw new Error('Failed to fetch availability')
       return response.json()
     },
     enabled: !!selectedMentor,
@@ -88,15 +113,22 @@ export default function SchedulePage() {
       if (!selectedDate || !selectedMentor || !selectedTimeSlot) return
 
       // Parse the time strings and combine with selected date
-      const [startHour, startMinute] = selectedTimeSlot.startTime.split(":").map(Number)
-      const [endHour, endMinute] = selectedTimeSlot.endTime.split(":").map(Number)
+      const [startHour, startMinute] = selectedTimeSlot.startTime
+        .split(':')
+        .map(Number)
+      const [endHour, endMinute] = selectedTimeSlot.endTime
+        .split(':')
+        .map(Number)
 
-      const startTime = set(selectedDate, { hours: startHour, minutes: startMinute })
+      const startTime = set(selectedDate, {
+        hours: startHour,
+        minutes: startMinute,
+      })
       const endTime = set(selectedDate, { hours: endHour, minutes: endMinute })
 
-      const response = await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           description,
@@ -112,23 +144,23 @@ export default function SchedulePage() {
 
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data.error || "Failed to schedule session")
+        throw new Error(data.error || 'Failed to schedule session')
       }
 
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sessions"] })
-      toast.success("Session scheduled successfully")
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      toast.success('Session scheduled successfully')
       setIsDialogOpen(false)
-      setTitle("")
-      setDescription("")
+      setTitle('')
+      setDescription('')
       setSelectedDate(undefined)
       setSelectedTimeSlot(null)
-      setLocation("ONLINE")
-      setMeetingType("VIDEO")
-      setMeetingLink("")
-      setAgenda("")
+      setLocation('ONLINE')
+      setMeetingType('VIDEO')
+      setMeetingLink('')
+      setAgenda('')
     },
     onError: (error: Error) => {
       toast.error(error.message)
@@ -137,22 +169,22 @@ export default function SchedulePage() {
 
   const handleScheduleSession = () => {
     if (!title.trim()) {
-      toast.error("Please enter a session title")
+      toast.error('Please enter a session title')
       return
     }
 
     if (!selectedDate) {
-      toast.error("Please select a date")
+      toast.error('Please select a date')
       return
     }
 
     if (!selectedTimeSlot) {
-      toast.error("Please select a time slot")
+      toast.error('Please select a time slot')
       return
     }
 
-    if (location === "ONLINE" && !meetingLink.trim()) {
-      toast.error("Please provide a meeting link for online sessions")
+    if (location === 'ONLINE' && !meetingLink.trim()) {
+      toast.error('Please provide a meeting link for online sessions')
       return
     }
 
@@ -162,17 +194,17 @@ export default function SchedulePage() {
   // Check if the selected date matches any availability slots
   const isDateAvailable = (date: Date) => {
     if (!availability.length) return false
-    
+
     const dayOfWeek = date.getDay()
-    return availability.some(slot => slot.dayOfWeek === dayOfWeek)
+    return availability.some((slot) => slot.dayOfWeek === dayOfWeek)
   }
 
   // Get available time slots for the selected date
   const getAvailableTimeSlots = (date: Date) => {
     if (!date) return []
-    
+
     const dayOfWeek = date.getDay()
-    return availability.filter(slot => slot.dayOfWeek === dayOfWeek)
+    return availability.filter((slot) => slot.dayOfWeek === dayOfWeek)
   }
 
   return (
@@ -201,11 +233,15 @@ export default function SchedulePage() {
               <CardHeader>
                 <CardTitle>{mentor.alumni.name}</CardTitle>
                 <CardDescription>
-                  {mentor.alumni.alumniProfile.profession} at {mentor.alumni.alumniProfile.company}
+                  {mentor.alumni.alumniProfile.profession} at{' '}
+                  {mentor.alumni.alumniProfile.company}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+                <Dialog
+                  open={isDialogOpen}
+                  onOpenChange={handleDialogOpenChange}
+                >
                   <DialogTrigger asChild>
                     <Button
                       className="w-full"
@@ -214,7 +250,7 @@ export default function SchedulePage() {
                       Schedule Session
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[800px]">
                     <DialogHeader>
                       <DialogTitle>Schedule a Session</DialogTitle>
                       <DialogDescription>
@@ -238,37 +274,57 @@ export default function SchedulePage() {
 
                           <div>
                             <Label>Session Type</Label>
-                            <div className="grid gap-2 mt-2">
-                              <Select value={location} onValueChange={(val: "ONLINE" | "IN_PERSON") => {
-                                setLocation(val)
-                                setMeetingType(val === "ONLINE" ? "VIDEO" : "IN_PERSON")
-                              }}>
+                            <div className="mt-2 grid gap-2">
+                              <Select
+                                value={location}
+                                onValueChange={(
+                                  val: 'ONLINE' | 'IN_PERSON'
+                                ) => {
+                                  setLocation(val)
+                                  setMeetingType(
+                                    val === 'ONLINE' ? 'VIDEO' : 'IN_PERSON'
+                                  )
+                                }}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select location" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="ONLINE">Online</SelectItem>
-                                  <SelectItem value="IN_PERSON">In Person</SelectItem>
+                                  <SelectItem value="IN_PERSON">
+                                    In Person
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
 
-                              {location === "ONLINE" && (
-                                <Select value={meetingType} onValueChange={(val: "VIDEO" | "AUDIO") => setMeetingType(val)}>
+                              {location === 'ONLINE' && (
+                                <Select
+                                  value={meetingType}
+                                  onValueChange={(val: 'VIDEO' | 'AUDIO') =>
+                                    setMeetingType(val)
+                                  }
+                                >
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select meeting type" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="VIDEO">Video Call</SelectItem>
-                                    <SelectItem value="AUDIO">Audio Call</SelectItem>
+                                    <SelectItem value="VIDEO">
+                                      Video Call
+                                    </SelectItem>
+                                    <SelectItem value="AUDIO">
+                                      Audio Call
+                                    </SelectItem>
                                   </SelectContent>
                                 </Select>
                               )}
 
-                              {location === "ONLINE" && (
+                              {location === 'ONLINE' && (
                                 <Input
                                   placeholder="Meeting link"
                                   value={meetingLink}
-                                  onChange={(e) => setMeetingLink(e.target.value)}
+                                  onChange={(e) =>
+                                    setMeetingLink(e.target.value)
+                                  }
                                 />
                               )}
                             </div>
@@ -290,7 +346,7 @@ export default function SchedulePage() {
                         <div className="space-y-4">
                           <div>
                             <Label>Date & Time</Label>
-                            <div className="border rounded-lg p-2 mt-2">
+                            <div className="mt-2 rounded-lg border p-2">
                               <Calendar
                                 mode="single"
                                 selected={selectedDate}
@@ -304,18 +360,24 @@ export default function SchedulePage() {
                           {selectedDate && (
                             <div>
                               <Label>Available Time Slots</Label>
-                              <div className="grid grid-cols-2 gap-2 mt-2">
-                                {getAvailableTimeSlots(selectedDate).map((slot) => (
-                                  <Button
-                                    key={slot.id}
-                                    variant={selectedTimeSlot?.id === slot.id ? "default" : "outline"}
-                                    className="w-full"
-                                    onClick={() => setSelectedTimeSlot(slot)}
-                                  >
-                                    <Clock className="mr-2 h-4 w-4" />
-                                    {slot.startTime} - {slot.endTime}
-                                  </Button>
-                                ))}
+                              <div className="mt-2 grid grid-cols-2 gap-2">
+                                {getAvailableTimeSlots(selectedDate).map(
+                                  (slot) => (
+                                    <Button
+                                      key={slot.id}
+                                      variant={
+                                        selectedTimeSlot?.id === slot.id
+                                          ? 'default'
+                                          : 'outline'
+                                      }
+                                      className="w-full"
+                                      onClick={() => setSelectedTimeSlot(slot)}
+                                    >
+                                      <Clock className="mr-2 h-4 w-4" />
+                                      {slot.startTime} - {slot.endTime}
+                                    </Button>
+                                  )
+                                )}
                               </div>
                             </div>
                           )}
@@ -339,7 +401,9 @@ export default function SchedulePage() {
                         onClick={handleScheduleSession}
                         disabled={createSession.isPending}
                       >
-                        {createSession.isPending ? "Scheduling..." : "Schedule Session"}
+                        {createSession.isPending
+                          ? 'Scheduling...'
+                          : 'Schedule Session'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -351,4 +415,4 @@ export default function SchedulePage() {
       )}
     </Shell>
   )
-} 
+}

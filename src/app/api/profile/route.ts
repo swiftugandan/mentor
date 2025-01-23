@@ -1,43 +1,40 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { UserRole } from "@prisma/client"
-import { z } from "zod"
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { UserRole } from '@prisma/client'
+import { z } from 'zod'
 
-import { db } from "@/lib/db"
-import { authOptions } from "@/lib/auth"
+import { db } from '@/lib/db'
+import { authOptions } from '@/lib/auth'
 
 const studentProfileSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  gradeLevel: z.number().min(1, "Grade level is required"),
-  schoolName: z.string().min(1, "School name is required"),
-  interests: z.array(z.string()).min(1, "At least one interest is required"),
+  name: z.string().min(1, 'Name is required'),
+  gradeLevel: z.number().min(1, 'Grade level is required'),
+  schoolName: z.string().min(1, 'School name is required'),
+  interests: z.array(z.string()).min(1, 'At least one interest is required'),
   bio: z.string().optional(),
 })
 
 const alumniProfileSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  profession: z.string().min(1, "Profession is required"),
-  company: z.string().min(1, "Company is required"),
-  graduationYear: z.number().min(1900, "Invalid graduation year"),
-  expertise: z.array(z.string()).min(1, "At least one area of expertise is required"),
+  name: z.string().min(1, 'Name is required'),
+  profession: z.string().min(1, 'Profession is required'),
+  company: z.string().min(1, 'Company is required'),
+  graduationYear: z.number().min(1900, 'Invalid graduation year'),
+  expertise: z
+    .array(z.string())
+    .min(1, 'At least one area of expertise is required'),
   bio: z.string().optional(),
 })
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await db.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
+      where: { id: session.user.id },
       include: {
         studentProfile: true,
         alumniProfile: true,
@@ -45,31 +42,25 @@ export async function GET(req: Request) {
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     return NextResponse.json(user)
   } catch (error) {
-    console.error("Error fetching profile:", error)
+    console.error('[PROFILE_GET]', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json()
@@ -82,7 +73,10 @@ export async function PATCH(req: Request) {
 
     if (!validatedFields.success) {
       return NextResponse.json(
-        { error: "Invalid fields", details: validatedFields.error.flatten().fieldErrors },
+        {
+          error: 'Invalid fields',
+          details: validatedFields.error.flatten().fieldErrors,
+        },
         { status: 400 }
       )
     }
@@ -91,39 +85,35 @@ export async function PATCH(req: Request) {
 
     // Update user name
     await db.user.update({
-      where: {
-        id: session.user.id,
-      },
-      data: {
-        name: data.name,
-      },
+      where: { id: session.user.id },
+      data: { name: data.name },
     })
 
     // Update role-specific profile
     if (isStudent) {
-      const { name, ...studentData } = data
+      // Exclude name as it's already updated in user table
       await db.studentProfile.update({
-        where: {
-          userId: session.user.id,
-        },
-        data: studentData,
+        where: { userId: session.user.id },
+        data: Object.fromEntries(
+          Object.entries(data).filter(([key]) => key !== 'name')
+        ),
       })
     } else {
-      const { name, ...alumniData } = data
+      // Exclude name as it's already updated in user table
       await db.alumniProfile.update({
-        where: {
-          userId: session.user.id,
-        },
-        data: alumniData,
+        where: { userId: session.user.id },
+        data: Object.fromEntries(
+          Object.entries(data).filter(([key]) => key !== 'name')
+        ),
       })
     }
 
-    return NextResponse.json({ message: "Profile updated successfully" })
+    return NextResponse.json({ message: 'Profile updated successfully' })
   } catch (error) {
-    console.error("Error updating profile:", error)
+    console.error('[PROFILE_PATCH]', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
-} 
+}
