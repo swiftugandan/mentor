@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String              @id @default(cuid())
+  email            String              @unique
+  name             String
+  password         String
+  role             UserRole
+  profileImage     String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  alumniProfile    AlumniProfile?
+  receivedRequests MentorshipRequest[] @relation("AlumniRequests")
+  sentRequests     MentorshipRequest[] @relation("StudentRequests")
+  mentorSessions   MentorshipSession[] @relation("MentorSessions")
+  studentSessions  MentorshipSession[] @relation("StudentSessions")
+  studentProfile   StudentProfile?
+}
+
+model StudentProfile {
+  id         String   @id @default(cuid())
+  gradeLevel Int
+  schoolName String
+  interests  String[]
+  bio        String?
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AlumniProfile {
+  id             String         @id @default(cuid())
+  profession     String
+  company        String
+  graduationYear Int
+  expertise      String[]
+  bio            String?
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availability   Availability[]
+}
+
+model MentorshipRequest {
+  id        String   @id @default(cuid())
+  status    String   @default("PENDING")
+  message   String?
+  createdAt DateTime @default(now())
+  studentId String
+  alumniId  String
+  alumni    User     @relation("AlumniRequests", fields: [alumniId], references: [id])
+  student   User     @relation("StudentRequests", fields: [studentId], references: [id])
+}
+
+model MentorshipSession {
+  id              String     @id @default(cuid())
+  status          String     @default("SCHEDULED")
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  description     String?
+  endTime         DateTime
+  mentorId        String
+  startTime       DateTime
+  studentId       String
+  title           String
+  agenda          String?
+  feedback        String?
+  location        String     @default("ONLINE")
+  meetingLink     String?
+  meetingType     String     @default("VIDEO")
+  venue           String?
+  cancelledAt     DateTime?
+  completedAt     DateTime?
+  duration        Int
+  lastModifiedBy  String
+  meetingId       String?
+  meetingProvider String?
+  mentorRating    Int?
+  remindersSent   DateTime[]
+  studentFeedback String?
+  studentRating   Int?
+  timezone        String
+  mentor          User       @relation("MentorSessions", fields: [mentorId], references: [id])
+  student         User       @relation("StudentSessions", fields: [studentId], references: [id])
+
+  @@index([status])
+  @@index([startTime])
+  @@index([mentorId, status])
+  @@index([studentId, status])
+}
+
+model Availability {
+  id          String        @id @default(cuid())
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  alumniId    String
+  location    String        @default("ONLINE")
+  meetingLink String?
+  meetingType String        @default("VIDEO")
+  venue       String?
+  alumni      AlumniProfile @relation(fields: [alumniId], references: [id], onDelete: Cascade)
+
+  @@index([dayOfWeek])
+  @@index([alumniId])
+}
+
+enum UserRole {
+  STUDENT
+  ALUMNI
+  ADMIN
+}
