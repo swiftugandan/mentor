@@ -69,17 +69,21 @@ export function AuthForm({ type, onSubmit }: Props) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
+            <FormItem className="space-y-1">
+              <FormLabel className="text-sm font-medium">Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email" {...field} />
+                <Input
+                  placeholder="Enter your email"
+                  {...field}
+                  className="h-9 px-3 py-1 text-sm"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -87,16 +91,17 @@ export function AuthForm({ type, onSubmit }: Props) {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
+            <FormItem className="space-y-1">
+              <FormLabel className="text-sm font-medium">Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
                   placeholder="Enter your password"
                   {...field}
+                  className="h-9 px-3 py-1 text-sm"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -107,12 +112,16 @@ export function AuthForm({ type, onSubmit }: Props) {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-sm font-medium">Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your name" {...field} />
+                    <Input
+                      placeholder="Enter your name"
+                      {...field}
+                      className="h-9 px-3 py-1 text-sm"
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -120,8 +129,8 @@ export function AuthForm({ type, onSubmit }: Props) {
               control={form.control}
               name="role"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>I am a</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-sm font-medium">I am a</FormLabel>
                   <Select
                     onValueChange={(value: UserRole) => {
                       field.onChange(value)
@@ -130,16 +139,20 @@ export function AuthForm({ type, onSubmit }: Props) {
                     value={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 text-sm">
                         <SelectValue placeholder="Select your role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={UserRole.STUDENT}>Student</SelectItem>
-                      <SelectItem value={UserRole.ALUMNI}>Alumni</SelectItem>
+                      <SelectItem value={UserRole.STUDENT} className="text-sm">
+                        Student
+                      </SelectItem>
+                      <SelectItem value={UserRole.ALUMNI} className="text-sm">
+                        Alumni
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -150,20 +163,24 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="gradeLevel"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Grade Level</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        Grade Level
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min={9}
                           max={12}
+                          placeholder="Enter your grade (9-12)"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value))
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -171,15 +188,18 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="schoolName"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>School Name</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        School Name
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter your school name"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -187,11 +207,14 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="interests"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Interests (comma-separated)</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        Interests (comma-separated)
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g. Science, Technology, Arts"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                           onChange={(e) =>
                             field.onChange(
@@ -200,7 +223,7 @@ export function AuthForm({ type, onSubmit }: Props) {
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -213,12 +236,18 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="profession"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Profession</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        Profession
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your profession" {...field} />
+                        <Input
+                          placeholder="Enter your profession"
+                          className="h-9 px-3 py-1 text-sm"
+                          {...field}
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -226,15 +255,18 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="company"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        Company
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Enter your company name"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -242,20 +274,24 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="graduationYear"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Graduation Year</FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
+                        Graduation Year
+                      </FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           min={1900}
                           max={new Date().getFullYear()}
+                          placeholder="Enter graduation year"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value))
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -263,13 +299,14 @@ export function AuthForm({ type, onSubmit }: Props) {
                   control={form.control}
                   name="expertise"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
+                    <FormItem className="space-y-1">
+                      <FormLabel className="text-sm font-medium">
                         Areas of Expertise (comma-separated)
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g. Engineering, Business, Medicine"
+                          className="h-9 px-3 py-1 text-sm"
                           {...field}
                           onChange={(e) =>
                             field.onChange(
@@ -278,7 +315,7 @@ export function AuthForm({ type, onSubmit }: Props) {
                           }
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-xs" />
                     </FormItem>
                   )}
                 />
@@ -290,16 +327,18 @@ export function AuthForm({ type, onSubmit }: Props) {
                 control={form.control}
                 name="bio"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio (optional)</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-sm font-medium">
+                      Bio (optional)
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Tell us about yourself..."
-                        className="resize-none"
+                        className="min-h-[100px] resize-none px-3 py-2 text-sm"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -307,7 +346,7 @@ export function AuthForm({ type, onSubmit }: Props) {
           </>
         )}
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="mt-2 w-full">
           {type === 'login' ? 'Sign In' : 'Sign Up'}
         </Button>
       </form>

@@ -1,15 +1,15 @@
 'use client'
 
-import { Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 
 import { AuthForm } from '@/components/forms/auth-form'
-import { AuthForm as IAuthForm } from '@/types'
+import { AuthHeader } from '@/components/auth-header'
+import type { AuthForm as IAuthForm } from '@/types'
 
-function LoginContent() {
+export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const from = searchParams.get('from') || '/dashboard'
@@ -36,37 +36,29 @@ function LoginContent() {
   }
 
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-8 sm:w-[350px]">
-      <div className="flex flex-col space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your email to sign in to your account
-        </p>
-      </div>
-      <AuthForm type="login" onSubmit={onSubmit} />
-      <p className="text-center text-sm text-muted-foreground">
-        <Link
-          href="/register"
-          className="hover:text-brand underline underline-offset-4"
-        >
-          Don&apos;t have an account? Sign up
-        </Link>
-      </p>
-    </div>
-  )
-}
-
-export default function LoginPage() {
-  return (
-    <div className="container relative flex min-h-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Loading...</h1>
+    <>
+      <AuthHeader />
+      <main className="container relative flex min-h-screen flex-col items-center justify-center px-4">
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your email to sign in to your account
+            </p>
+          </div>
+          <AuthForm type="login" onSubmit={onSubmit} />
+          <p className="text-center text-sm text-muted-foreground">
+            <Link
+              href="/register"
+              className="hover:text-brand underline underline-offset-4"
+            >
+              Don&apos;t have an account? Sign up
+            </Link>
+          </p>
         </div>
-      </div>
-      <Suspense fallback={null}>
-        <LoginContent />
-      </Suspense>
-    </div>
+      </main>
+    </>
   )
 }
