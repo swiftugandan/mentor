@@ -61,9 +61,9 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <>
+    <div className="flex flex-col h-full">
       <AuthHeader />
-      <main className="container relative flex min-h-screen flex-col items-center justify-center px-4">
+      <main className="relative flex flex-col flex-grow items-center justify-center px-4">
         <Suspense
           fallback={
             <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
@@ -79,6 +79,6 @@ export default function LoginPage() {
           <LoginContent />
         </Suspense>
       </main>
-    </>
+    </div>
   )
 }

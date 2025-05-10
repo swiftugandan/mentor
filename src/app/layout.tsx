@@ -20,12 +20,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} h-full flex flex-col`}>
         <QueryProvider>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <div className="flex flex-col flex-grow">
+              {children}
+              <Toaster />
+            </div>
           </AuthProvider>
         </QueryProvider>
       </body>
